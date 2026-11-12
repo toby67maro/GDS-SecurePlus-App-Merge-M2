@@ -1,0 +1,66 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Deployment.TrackerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls"
+             x:Name="Page">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportCommand}" VerticalAlignment="Top" />
+                    <TextBlock Text="Change Tracker" Style="{StaticResource Text.Heading3}" Margin="0" />
+                </DockPanel>
+                <WrapPanel Margin="0,6,0,0">
+                    <StackPanel Width="280" Margin="0,0,12,6">
+                        <TextBlock Text="Search" Style="{StaticResource Text.Label}" />
+                        <controls:SearchBox Text="{Binding Search, Mode=TwoWay}" Placeholder="Search titles, customers, owners or #ID" />
+                    </StackPanel>
+                    <StackPanel Width="200" Margin="0,0,12,6">
+                        <TextBlock Text="Customer" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding CustomerFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel Width="170" Margin="0,0,12,6">
+                        <TextBlock Text="Status" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding StatusFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel Width="150" Margin="0,0,12,6">
+                        <TextBlock Text="Risk" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding RiskFilter}" Focusable="False" />
+                    </StackPanel>
+                    <Button Content="Refresh" Command="{Binding LoadCommand}" Style="{StaticResource Button.Secondary}" VerticalAlignment="Bottom" />
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+        <controls:KpiPanel ItemsSource="{Binding Kpis}" />
+        <Border Style="{StaticResource Card}">
+            <controls:ResizablePanel Header="{Binding CountText}" PanelHeight="460">
+                <DataGrid ItemsSource="{Binding View}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="Auto" />
+                        <DataGridTextColumn Header="Customer" Binding="{Binding Customer}" Width="*" />
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="2*" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
+                        <DataGridTextColumn Header="Risk" Binding="{Binding Risk}" Width="Auto" />
+                        <DataGridTextColumn Header="Owner" Binding="{Binding Owner}" Width="*" />
+                        <DataGridTextColumn Header="Window" Binding="{Binding Window}" Width="*" />
+                        <DataGridTextColumn Header="Created" Binding="{Binding Created}" Width="Auto" />
+                        <DataGridTextColumn Header="Last Execution" Binding="{Binding LastExecution}" Width="*" />
+                        <DataGridTemplateColumn Header="Actions" Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="Open" Style="{StaticResource Button.Secondary}" Padding="8,1" Margin="0,0,4,0"
+                                                Command="{Binding DataContext.OpenCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                        <Button Content="Execute" Style="{StaticResource Button.Secondary}" Padding="8,1" Margin="0"
+                                                Command="{Binding DataContext.ExecuteCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </controls:ResizablePanel>
+        </Border>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,199 @@
+<Window x:Class="EngineeringWorkspace.Desktop.Setup.SetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:EngineeringWorkspace.Desktop.Services"
+        xmlns:credentials="clr-namespace:EngineeringWorkspace.Desktop.Pages.Credentials"
+        Title="Secure Plus Agent Setup" Height="720" Width="1280" MinHeight="480" MinWidth="800"
+        Icon="pack://application:,,,/Assets/gds.ico"
+        WindowStartupLocation="Manual" ResizeMode="CanResize" services:WindowZoom.IsEnabled="True"
+        Background="{DynamicResource AppBrush.ApplicationBackground}"
+        Foreground="{DynamicResource AppBrush.TextPrimary}"
+        FontFamily="{DynamicResource AppFont.Family}" FontSize="{DynamicResource AppFont.Size.Base}">
+    <DockPanel>
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource AppBrush.HeaderBackground}" Padding="28,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Secure Plus Agent" Foreground="{DynamicResource AppBrush.HeaderForeground}" FontSize="{DynamicResource AppFont.Size.Heading2}" FontWeight="{DynamicResource AppFont.Weight.Heading}" />
+                    <TextBlock Text="Complete setup before using the application. Nothing else is available until the backend database is installed."
+                               Foreground="{DynamicResource AppBrush.HeaderForeground}" Opacity="0.85" TextWrapping="Wrap" />
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding StepNumber}" Foreground="{DynamicResource AppBrush.HeaderForeground}" VerticalAlignment="Center" FontWeight="{DynamicResource AppFont.Weight.Medium}" />
+            </Grid>
+        </Border>
+
+        <!-- Footer -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource AppBrush.StatusBarBackground}" Padding="28,10">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Back" Command="{Binding BackCommand}" Style="{StaticResource Button.Secondary}"
+                            Visibility="{Binding CanGoBack, Converter={StaticResource BoolToVisibility}}" Margin="0,0,8,0" />
+                    <Button Content="Exit Setup" Click="OnExitClick" Style="{StaticResource Button.Secondary}"
+                            Visibility="{Binding IsComplete, Converter={StaticResource InverseBoolToVisibility}}"
+                            ToolTip="Closes Secure Plus Agent. Setup starts again the next time it opens." />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
+                    <ProgressBar IsIndeterminate="True" Width="160" Height="6" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding DatabaseStep.ProgressText}" Foreground="{DynamicResource AppBrush.StatusBarForeground}" Margin="12,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <StackPanel Margin="28,20,28,28">
+                <TextBlock Text="{Binding StepTitle}" Style="{StaticResource Text.Heading2}" />
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Margin="0,6,0,16" MaxWidth="1100" HorizontalAlignment="Left" />
+
+                <!-- 1. Database -->
+                <StackPanel Visibility="{Binding IsDatabaseStep, Converter={StaticResource BoolToVisibility}}">
+                    <Button Content="Check and Install Database" Command="{Binding CheckDatabaseCommand}" HorizontalAlignment="Left" Margin="0,0,0,12"
+                            ToolTip="Saves the settings, connects, checks tables and permissions, creates the database if needed, and installs, upgrades or repairs the schema." />
+                    <StackPanel Visibility="{Binding IsSeeding, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,12" MaxWidth="760" HorizontalAlignment="Left">
+                        <TextBlock Text="Importing Reference Data" Style="{StaticResource Text.Label}" />
+                        <ProgressBar Value="{Binding SeedProgress}" Maximum="100" Height="8" Width="480" HorizontalAlignment="Left" />
+                    </StackPanel>
+                    <ContentControl Content="{Binding DatabaseStep}" Focusable="False" />
+                </StackPanel>
+
+                <!-- 2. Production or Test, organization key -->
+                <StackPanel Visibility="{Binding IsModeStep, Converter={StaticResource BoolToVisibility}}" MaxWidth="900" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding SeedSummary, Converter={StaticResource TextToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Text="Reference Data" Style="{StaticResource Text.Label}" />
+                            <TextBlock Text="{Binding SeedSummary}" TextWrapping="Wrap" Style="{StaticResource Text.Caption}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Database Mode" Style="{StaticResource Text.Heading3}" />
+                            <TextBlock Text="{Binding ModeText}" TextWrapping="Wrap" />
+                            <StackPanel Visibility="{Binding ModeIsChosen, Converter={StaticResource InverseBoolToVisibility}}" Margin="0,10,0,0">
+                                <RadioButton GroupName="Mode" IsChecked="{Binding ChooseProduction}" Margin="0,0,0,4">
+                                    <StackPanel>
+                                        <TextBlock Text="Production" FontWeight="SemiBold" />
+                                        <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" MaxWidth="760"
+                                                   Text="Real customers. Schema upgrades are applied only when someone confirms them on Database Configuration, sample data is never loaded, and no banner is shown." />
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton GroupName="Mode" IsChecked="{Binding ChooseTest}">
+                                    <StackPanel>
+                                        <TextBlock Text="Test" FontWeight="SemiBold" />
+                                        <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" MaxWidth="760"
+                                                   Text="Trying things out and training. Sample data can be loaded, schema upgrades are applied automatically, and an orange TEST banner is shown at the top of every window." />
+                                    </StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <credentials:OrganizationKeyPanelView DataContext="{Binding OrganizationKey}" />
+                    </Border>
+                    <Button Content="Continue" Command="{Binding ContinueFromModeCommand}" HorizontalAlignment="Left" Margin="0,16,0,0" />
+                </StackPanel>
+
+                <!-- 3. Customer -->
+                <StackPanel Visibility="{Binding IsCustomerStep, Converter={StaticResource BoolToVisibility}}" MaxWidth="760" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding SeedSummary, Converter={StaticResource TextToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Text="Reference Data" Style="{StaticResource Text.Label}" />
+                            <TextBlock Text="{Binding SeedSummary}" TextWrapping="Wrap" Style="{StaticResource Text.Caption}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <StackPanel Visibility="{Binding HasCustomers, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="Existing Customer Profiles" Style="{StaticResource Text.Label}" />
+                                <ComboBox ItemsSource="{Binding CustomerProfiles}" SelectedItem="{Binding SelectedCustomer}" DisplayMemberPath="Name"
+                                          IsEditable="False" IsTextSearchEnabled="True" AutomationProperties.Name="Existing customer profiles" />
+                                <TextBlock Text="Or Add a New Customer" Style="{StaticResource Text.Caption}" Margin="0,8,0,0" />
+                            </StackPanel>
+                            <TextBlock Text="Customer Name" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New customer name" />
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button Content="Continue with This Customer" Command="{Binding SaveCustomerCommand}" />
+                        <Button Content="Not Now" Command="{Binding SkipCustomerCommand}" Style="{StaticResource Button.Secondary}" Margin="8,0,0,0"
+                                ToolTip="Continue without a customer profile; the sample data can be loaded at the end." />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 3. Tenant -->
+                <StackPanel Visibility="{Binding IsTenantStep, Converter={StaticResource BoolToVisibility}}" MaxWidth="760" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,8"
+                                       Text="Select Sign in and register automatically. A Microsoft sign-in opens in your browser; sign in as a Global Administrator of the customer's tenant. Secure Plus Agent then creates the 'GDS Secure Plus Agent' enterprise app, adds and consents the read-only Microsoft Graph permissions, stores a client secret and tests the connection." />
+                            <WrapPanel>
+                                <Button Content="Sign In and Register Automatically" Command="{Binding RegisterTenantCommand}" />
+                                <ProgressBar IsIndeterminate="True" Width="140" Height="6" VerticalAlignment="Center" Visibility="{Binding IsRegistering, Converter={StaticResource BoolToVisibility}}" />
+                            </WrapPanel>
+                            <TextBlock Text="{Binding TenantProgress}" TextWrapping="Wrap" Visibility="{Binding TenantProgress, Converter={StaticResource TextToVisibility}}" />
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button Content="Continue" Command="{Binding ContinueFromTenantCommand}" />
+                        <TextBlock Text="(skip to connect later on Tenant App Registration)" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 3. Initial assessment -->
+                <StackPanel Visibility="{Binding IsAssessmentStep, Converter={StaticResource BoolToVisibility}}" MaxWidth="760" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding AssessmentQuestion}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                            <RadioButton Content="Yes, Do the Initial Assessment Scan" IsChecked="{Binding RunInitialAssessment}" GroupName="Assessment" Margin="0,0,0,6" />
+                            <RadioButton Content="Not Now" GroupName="Assessment" IsChecked="{Binding RunInitialAssessment, Converter={StaticResource InverseBool}}" />
+                        </StackPanel>
+                    </Border>
+                    <Button Content="Continue" Command="{Binding ContinueAssessmentCommand}" HorizontalAlignment="Left" Margin="0,16,0,0" />
+                </StackPanel>
+
+                <!-- 4. Workspace -->
+                <StackPanel Visibility="{Binding IsWorkspaceStep, Converter={StaticResource BoolToVisibility}}" MaxWidth="760" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <StackPanel Visibility="{Binding Workspaces.Count, Converter={StaticResource CountToVisibility}}">
+                                <TextBlock Text="Existing Workspaces" Style="{StaticResource Text.Label}" />
+                                <ComboBox ItemsSource="{Binding Workspaces}" SelectedItem="{Binding SelectedWorkspace}" DisplayMemberPath="Name" IsTextSearchEnabled="True"
+                                          AutomationProperties.Name="Existing workspaces" />
+                                <TextBlock Text="Or Create a New Workspace" Style="{StaticResource Text.Caption}" Margin="0,8,0,0" />
+                            </StackPanel>
+                            <TextBlock Text="New Workspace Name" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding WorkspaceName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New workspace name" />
+                        </StackPanel>
+                    </Border>
+                    <Button Content="Continue" Command="{Binding SaveWorkspaceCommand}" HorizontalAlignment="Left" Margin="0,16,0,0" />
+                </StackPanel>
+
+                <!-- 5. Finish -->
+                <StackPanel Visibility="{Binding IsFinishStep, Converter={StaticResource BoolToVisibility}}" MaxWidth="760" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                            <CheckBox Content="Load the Sample Customer, Workspace and Assessment" IsChecked="{Binding LoadSampleData}" IsEnabled="{Binding SampleDataAllowed}" />
+                            <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,4,0,0"
+                                       Text="Test databases only: the sample data ('Contoso (Sample)', 'Sample Workspace' and a completed baseline assessment) is loaded automatically when no other customers or workspaces exist. It is illustrative only and safe to delete." />
+                        </StackPanel>
+                    </Border>
+                    <Button Content="Finish Setup" Command="{Binding FinishCommand}" HorizontalAlignment="Left" Margin="0,16,0,0" />
+                </StackPanel>
+
+                <!-- Done -->
+                <StackPanel Visibility="{Binding IsComplete, Converter={StaticResource BoolToVisibility}}" MaxWidth="760" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Secure Plus Agent is installed." Style="{StaticResource Text.Heading3}" />
+                            <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                    <Button Content="Open Secure Plus Agent" IsDefault="True" Click="OnCompleteClick" HorizontalAlignment="Left" Margin="0,16,0,0" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

@@ -1,0 +1,487 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Customers.CustomerProfilesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls"
+             x:Name="Page">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Content="New Customer" Command="{Binding NewCustomerCommand}" Margin="0,0,16,8" />
+                        <TextBlock Text="Export All Customer Profiles" VerticalAlignment="Center" Margin="0,0,8,8" Style="{StaticResource Text.Secondary}" />
+                        <controls:ExportButtons Command="{Binding ExportAllCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="Customer Profiles" Style="{StaticResource Text.Heading3}" Margin="0" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,2,0,6"
+                           Text="Select a customer to see its profile. Use the pencil to edit a property; every change is recorded with who made it and when. Secrets are never shown or exported." />
+                <WrapPanel>
+                    <StackPanel Width="280" Margin="0,0,12,6">
+                        <TextBlock Text="Search" Style="{StaticResource Text.Label}" />
+                        <controls:SearchBox Text="{Binding Search, Mode=TwoWay}" Placeholder="Search customers, domains, tags or contacts" />
+                    </StackPanel>
+                    <StackPanel Width="170" Margin="0,0,12,6">
+                        <TextBlock Text="Tenant" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding ConnectionFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel Width="170" Margin="0,0,12,6">
+                        <TextBlock Text="Tags" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding TagFilter}" Focusable="False" />
+                    </StackPanel>
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}" Visibility="{Binding IsConnectOpen, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Heading3}">
+                    <Run Text="Connect Tenant – " /><Run Text="{Binding ConnectCustomerName, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                           Text="A Global Administrator of the customer's tenant signs in once in the browser. Secure Plus registers its app, grants consent, tests the connection and runs a quick scan, so users and groups are ready for the user-group and deployment pickers." />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Text="{Binding ConnectPermissionsText}" Margin="0,4,0,0" />
+                <WrapPanel Margin="0,8,0,0">
+                    <StackPanel Width="340" Margin="0,0,12,6">
+                        <TextBlock Text="Tenant ID (optional)" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding ConnectTenantId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Tenant ID"
+                                 ToolTip="Leave empty to use the tenant of the administrator who signs in." />
+                    </StackPanel>
+                    <StackPanel Width="200" Margin="0,0,12,6">
+                        <TextBlock Text="Cloud" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{Binding CloudEnvironments}" SelectedItem="{Binding ConnectCloud}" AutomationProperties.Name="Cloud environment" />
+                    </StackPanel>
+                </WrapPanel>
+                <WrapPanel Margin="0,4,0,0">
+                    <Button Content="Connect and Run a Quick Scan" Command="{Binding ConnectTenantCommand}" IsEnabled="{Binding IsConnecting, Converter={StaticResource InverseBool}}" />
+                    <Button Content="Skip – Connect Later" Command="{Binding SkipConnectCommand}" Style="{StaticResource Button.Secondary}" />
+                </WrapPanel>
+                <TextBlock Text="{Binding ConnectStatus}" TextWrapping="Wrap" Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}" Visibility="{Binding IsNewCustomerOpen, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="New Customer" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                           Text="Everything here is saved to the SecurePlus database (cust.Customer, cust.Contact and cust.Engagement) and is shared with every technician. Only the name is required." />
+                <TextBlock Text="Organization" Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}" Margin="0,8,0,4" />
+                <WrapPanel>
+                    <StackPanel Width="320" Margin="0,0,12,6">
+                        <TextBlock Text="Customer Name" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding NewCustomerName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Customer name" />
+                    </StackPanel>
+                        <StackPanel Width="380" Margin="0,0,12,6">
+                            <TextBlock Text="Industry" Style="{StaticResource Text.Label}" />
+                            <ComboBox ItemsSource="{Binding NewOrganization.IndustryOptions}" SelectedItem="{Binding NewOrganization.Industry}" AutomationProperties.Name="Industry" />
+                        </StackPanel>
+                        <StackPanel Width="220" Margin="0,0,12,6">
+                            <TextBlock Text="Industry (if Other)" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.IndustryOther, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Industry if other" />
+                        </StackPanel>
+                        <StackPanel Width="220" Margin="0,0,12,6">
+                            <TextBlock Text="Organization Size" Style="{StaticResource Text.Label}" />
+                            <ComboBox ItemsSource="{Binding NewOrganization.SizeOptions}" SelectedItem="{Binding NewOrganization.OrganizationSize}" AutomationProperties.Name="Organization Size" />
+                        </StackPanel>
+                        <StackPanel Width="180" Margin="0,0,12,6">
+                            <TextBlock Text="CRM Account ID" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.CrmAccountId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="CRM Account ID" />
+                        </StackPanel>
+                </WrapPanel>
+                <WrapPanel>
+                        <StackPanel Width="320" Margin="0,0,12,6">
+                            <TextBlock Text="Address Line 1" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.AddressLine1, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Address Line 1" />
+                        </StackPanel>
+                        <StackPanel Width="220" Margin="0,0,12,6">
+                            <TextBlock Text="Address Line 2" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.AddressLine2, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Address Line 2" />
+                        </StackPanel>
+                        <StackPanel Width="180" Margin="0,0,12,6">
+                            <TextBlock Text="City" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.City, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="City" />
+                        </StackPanel>
+                        <StackPanel Width="160" Margin="0,0,12,6">
+                            <TextBlock Text="State / Region" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.StateRegion, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="State / Region" />
+                        </StackPanel>
+                        <StackPanel Width="110" Margin="0,0,12,6">
+                            <TextBlock Text="Postal Code" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.PostalCode, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Postal Code" />
+                        </StackPanel>
+                        <StackPanel Width="180" Margin="0,0,12,6">
+                            <TextBlock Text="Country" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.Country, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Country" />
+                        </StackPanel>
+                </WrapPanel>
+                <WrapPanel>
+                        <StackPanel Width="180" Margin="0,0,12,6">
+                            <TextBlock Text="Main Phone" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.Phone, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Main Phone" />
+                        </StackPanel>
+                        <StackPanel Width="260" Margin="0,0,12,6">
+                            <TextBlock Text="Main E-mail" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.Email, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Main E-mail" />
+                        </StackPanel>
+                        <StackPanel Width="260" Margin="0,0,12,6">
+                            <TextBlock Text="Website" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.Website, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Website" />
+                        </StackPanel>
+                </WrapPanel>
+                <TextBlock Text="GDS Team" Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}" Margin="0,8,0,4" />
+                <WrapPanel>
+                        <StackPanel Width="220" Margin="0,0,12,6">
+                            <TextBlock Text="Sales Lead" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.SalesLead, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Sales Lead" />
+                        </StackPanel>
+                        <StackPanel Width="260" Margin="0,0,12,6">
+                            <TextBlock Text="Technical Lead / Assigned Engineer" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.TechnicalLead, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Technical Lead / Assigned Engineer" />
+                        </StackPanel>
+                        <StackPanel Width="220" Margin="0,0,12,6">
+                            <TextBlock Text="Project Manager" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding NewOrganization.ProjectManager, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Project Manager" />
+                        </StackPanel>
+                        <StackPanel Width="200" Margin="0,0,12,6">
+                            <TextBlock Text="Service Tier" Style="{StaticResource Text.Label}" />
+                            <ComboBox ItemsSource="{Binding NewOrganization.TierOptions}" SelectedItem="{Binding NewOrganization.ServiceTier}" AutomationProperties.Name="Service Tier" />
+                        </StackPanel>
+                </WrapPanel>
+                <DockPanel Margin="0,8,0,0">
+                    <Button DockPanel.Dock="Right" Content="Add Contact" Command="{Binding AddNewContactCommand}" Style="{StaticResource Button.Secondary}" />
+                    <TextBlock Text="Customer Contacts" Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}" VerticalAlignment="Center" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Text="Mark the main point of contact as Primary and whoever approves changes to the tenant as Approves Changes." />
+                <DataGrid ItemsSource="{Binding NewContacts.Rows}" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="260" Margin="0,4,0,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="1.4*" />
+                                <DataGridTextColumn Header="Title" Binding="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                                <DataGridTemplateColumn Header="Role" Width="1.2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.NewContacts.RoleOptions, ElementName=Page}" SelectedItem="{Binding Role, UpdateSourceTrigger=PropertyChanged}"
+                                                      Margin="0" AutomationProperties.Name="Role" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="E-mail" Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Width="1.4*" />
+                                <DataGridTextColumn Header="Phone" Binding="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                                <DataGridTextColumn Header="Mobile" Binding="{Binding MobilePhone, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                                <DataGridCheckBoxColumn Header="Primary" Binding="{Binding IsPrimary, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                                <DataGridCheckBoxColumn Header="Approves Changes" Binding="{Binding IsChangeApprover, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                                <DataGridCheckBoxColumn Header="Decision Owner" Binding="{Binding IsDecisionOwner, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                                <DataGridTemplateColumn Header="" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="&#xE74D;" Style="{StaticResource Button.Icon}" ToolTip="Remove Contact" AutomationProperties.Name="Remove contact"
+                                                    Command="{Binding DataContext.RemoveNewContactCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                <DockPanel Margin="0,8,0,0">
+                    <Button DockPanel.Dock="Right" Content="Add Group" Command="{Binding AddNewGroupCommand}" Style="{StaticResource Button.Secondary}" />
+                    <TextBlock Text="User Groups" Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}" VerticalAlignment="Center" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Text="Buckets of users who need a different experience: executives, frontline workers, people who travel abroad, administrators... Up to 25 per customer. Each group starts from an experience profile; tailor it on Assessment &gt; Experience Configuration and compare groups on Reporting &gt; Experience Map." />
+                <DataGrid ItemsSource="{Binding NewGroups.Rows}" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="320" Margin="0,4,0,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Group Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="1.3*" />
+                        <DataGridTemplateColumn Header="Kind of Users" Width="1.3*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.NewGroups.ClassificationOptions, ElementName=Page}" SelectedItem="{Binding Classification, UpdateSourceTrigger=PropertyChanged}"
+                                              Margin="0" AutomationProperties.Name="Kind of users" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Users" Binding="{Binding UserCount, UpdateSourceTrigger=PropertyChanged}" Width="0.5*" />
+                        <DataGridTemplateColumn Header="Experience Profile" Width="1.3*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.NewGroups.ProfileOptions, ElementName=Page}" SelectedItem="{Binding ExperienceProfile, UpdateSourceTrigger=PropertyChanged}"
+                                              Margin="0" AutomationProperties.Name="Experience profile" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="1.6*" />
+                        <DataGridTemplateColumn Header="" Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="&#xE74D;" Style="{StaticResource Button.Icon}" ToolTip="Remove Group" AutomationProperties.Name="Remove group"
+                                            Command="{Binding DataContext.RemoveNewGroupCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <WrapPanel Margin="0,8,0,0">
+                    <StackPanel Width="320" Margin="0,0,12,6">
+                        <TextBlock Text="Tags (comma separated)" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding NewCustomerTags, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Tags" />
+                    </StackPanel>
+                    <StackPanel Width="520" Margin="0,0,12,6">
+                        <TextBlock Text="Notes" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding NewCustomerNotes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="44" AutomationProperties.Name="Notes" />
+                    </StackPanel>
+                </WrapPanel>
+                <TextBlock Text="{Binding NewCustomerMessage}" Style="{StaticResource Text.Error}" TextWrapping="Wrap" Visibility="{Binding NewCustomerMessage, Converter={StaticResource TextToVisibility}}" />
+                <WrapPanel Margin="0,8,0,0">
+                    <Button Content="Create Customer" Command="{Binding CreateCustomerCommand}" />
+                    <Button Content="Cancel" Command="{Binding CancelNewCustomerCommand}" Style="{StaticResource Button.Secondary}" />
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" MinWidth="300" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="3*" MinWidth="380" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Card}">
+                <controls:ResizablePanel Header="{Binding CountText}" PanelHeight="560">
+                    <DataGrid ItemsSource="{Binding View}" SelectedItem="{Binding SelectedRow}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Customer" Binding="{Binding Name}" Width="2*" />
+                            <DataGridTextColumn Header="Primary Domain" Binding="{Binding Domain}" Width="2*" />
+                            <DataGridTextColumn Header="Tenant" Binding="{Binding Connection}" Width="Auto" />
+                            <DataGridTextColumn Header="Specification" Binding="{Binding Specification}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel>
+                        <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportProfileCommand}" IsEnabled="{Binding HasSelection}" />
+                        <TextBlock Text="Profile" Style="{StaticResource Text.Heading3}" Margin="0" />
+                    </DockPanel>
+                    <TextBlock Text="Select a customer." Style="{StaticResource Text.Caption}" Visibility="{Binding HasSelection, Converter={StaticResource InverseBoolToVisibility}}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="620">
+                        <ItemsControl ItemsSource="{Binding FieldsView}" Focusable="False">
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}"
+                                                       Foreground="{DynamicResource AppBrush.Secondary}" Margin="0,10,0,4" />
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="170" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Label}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" Visibility="{Binding IsReading, Converter={StaticResource BoolToVisibility}}" />
+                                        <StackPanel Grid.Column="1" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBox Text="{Binding EditText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="{Binding IsMultiline}" TextWrapping="Wrap"
+                                                     MinHeight="30" Visibility="{Binding IsTextEditor, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="{Binding Label}" />
+                                            <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding EditText}" Visibility="{Binding HasOptions, Converter={StaticResource BoolToVisibility}}"
+                                                      AutomationProperties.Name="{Binding Label}" />
+                                            <TextBlock Text="{Binding Error}" Style="{StaticResource Text.Error}" Visibility="{Binding Error, Converter={StaticResource TextToVisibility}}" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                <Button Content="Save" Command="{Binding DataContext.SaveFieldCommand, ElementName=Page}" CommandParameter="{Binding}" Padding="10,2" />
+                                                <Button Content="Cancel" Command="{Binding DataContext.CancelCommand, ElementName=Page}" CommandParameter="{Binding}" Style="{StaticResource Button.Secondary}"
+                                                        Padding="10,2" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Content="&#xE70F;" Style="{StaticResource Button.Icon}" ToolTip="Edit" AutomationProperties.Name="Edit"
+                                                Command="{Binding DataContext.EditCommand, ElementName=Page}" CommandParameter="{Binding}" VerticalAlignment="Top"
+                                                Visibility="{Binding IsEditable, Converter={StaticResource BoolToVisibility}}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <StackPanel Margin="0,12,0,0" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="Add Contact" Command="{Binding AddContactCommand}" Style="{StaticResource Button.Secondary}" />
+                                <Button Content="Save Contacts" Command="{Binding SaveContactsCommand}" />
+                            </StackPanel>
+                            <TextBlock Text="Contacts" Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}" Foreground="{DynamicResource AppBrush.Secondary}"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                        <TextBlock Text="{Binding ContactsMessage}" TextWrapping="Wrap" Visibility="{Binding ContactsMessage, Converter={StaticResource TextToVisibility}}" />
+                        <DataGrid ItemsSource="{Binding Contacts.Rows}" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="260" Margin="0,4,0,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="1.4*" />
+                                <DataGridTextColumn Header="Title" Binding="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                                <DataGridTemplateColumn Header="Role" Width="1.2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.Contacts.RoleOptions, ElementName=Page}" SelectedItem="{Binding Role, UpdateSourceTrigger=PropertyChanged}"
+                                                      Margin="0" AutomationProperties.Name="Role" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="E-mail" Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Width="1.4*" />
+                                <DataGridTextColumn Header="Phone" Binding="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                                <DataGridTextColumn Header="Mobile" Binding="{Binding MobilePhone, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                                <DataGridCheckBoxColumn Header="Primary" Binding="{Binding IsPrimary, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                                <DataGridCheckBoxColumn Header="Approves Changes" Binding="{Binding IsChangeApprover, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                                <DataGridCheckBoxColumn Header="Decision Owner" Binding="{Binding IsDecisionOwner, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                                <DataGridTemplateColumn Header="" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="&#xE74D;" Style="{StaticResource Button.Icon}" ToolTip="Remove Contact" AutomationProperties.Name="Remove contact"
+                                                    Command="{Binding DataContext.RemoveContactCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                    <StackPanel Margin="0,12,0,0" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="Add Suggested Groups" Command="{Binding AddSuggestedGroupsCommand}" Style="{StaticResource Button.Secondary}" />
+                                <Button Content="Add Group" Command="{Binding AddGroupCommand}" Style="{StaticResource Button.Secondary}" />
+                                <Button Content="Save Groups" Command="{Binding SaveGroupsCommand}" />
+                            </StackPanel>
+                            <TextBlock Text="User Groups" Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}" Foreground="{DynamicResource AppBrush.Secondary}"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                        <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Text="Buckets of users who need a different experience: executives, frontline workers, people who travel abroad, administrators... Up to 25 per customer. Each group starts from an experience profile; tailor it on Assessment &gt; Experience Configuration and compare groups on Reporting &gt; Experience Map." />
+                        <TextBlock Text="{Binding GroupsMessage}" TextWrapping="Wrap" Foreground="{DynamicResource AppBrush.Error}" Visibility="{Binding GroupsMessage, Converter={StaticResource TextToVisibility}}" />
+                        <DataGrid ItemsSource="{Binding Groups.Rows}" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="320" Margin="0,4,0,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Group Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="1.3*" />
+                                <DataGridTemplateColumn Header="Kind of Users" Width="1.3*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.Groups.ClassificationOptions, ElementName=Page}" SelectedItem="{Binding Classification, UpdateSourceTrigger=PropertyChanged}"
+                                                      Margin="0" AutomationProperties.Name="Kind of users" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Users" Binding="{Binding UserCount, UpdateSourceTrigger=PropertyChanged}" Width="0.5*" />
+                                <DataGridTemplateColumn Header="Experience Profile" Width="1.3*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.Groups.ProfileOptions, ElementName=Page}" SelectedItem="{Binding ExperienceProfile, UpdateSourceTrigger=PropertyChanged}"
+                                                      Margin="0" AutomationProperties.Name="Experience profile" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Entra ID Group" Width="1.4*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.Groups.EntraGroups, ElementName=Page}" DisplayMemberPath="Display" SelectedValuePath="ObjectId"
+                                                      SelectedValue="{Binding EntraGroup, UpdateSourceTrigger=PropertyChanged}" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
+                                                      AutomationProperties.Name="Entra ID group" ToolTip="The customer's groups from the last quick or in-depth scan. Picking one fills the user count." />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="1.6*" />
+                                <DataGridTemplateColumn Header="" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="&#xE74D;" Style="{StaticResource Button.Icon}" ToolTip="Remove Group" AutomationProperties.Name="Remove group"
+                                                    Command="{Binding DataContext.RemoveGroupCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                    <Expander Header="Tenant Access" Style="{StaticResource Section.Expander}" Margin="0,10,0,0" Visibility="{Binding CanManageAccess, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Text="{Binding ReadAccessText}" />
+                            <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,6,0,0" Text="{Binding DeploymentAccessText}" />
+                            <WrapPanel Margin="0,8,0,0">
+                                <Button Content="Update Read Access" Command="{Binding UpdateReadAccessCommand}" IsEnabled="{Binding IsAccessBusy, Converter={StaticResource InverseBool}}" Margin="0,0,8,0"
+                                        ToolTip="Read-only permissions, Exchange and Purview access, Global Reader, certificate; removes write permissions." />
+                                <Button Content="Enable Deployment Access" Command="{Binding EnableDeploymentAccessCommand}" IsEnabled="{Binding IsAccessBusy, Converter={StaticResource InverseBool}}" Margin="0,0,8,0"
+                                        Visibility="{Binding HasDeploymentAccess, Converter={StaticResource InverseBoolToVisibility}}"
+                                        ToolTip="Creates the Deploy registration (write permissions) for this deploy phase." />
+                                <Button Content="Remove Deployment Access" Command="{Binding RemoveDeploymentAccessCommand}" IsEnabled="{Binding IsAccessBusy, Converter={StaticResource InverseBool}}"
+                                        Visibility="{Binding HasDeploymentAccess, Converter={StaticResource BoolToVisibility}}"
+                                        ToolTip="Deletes the Deploy registration and its certificate when the deploy phase ends." />
+                            </WrapPanel>
+                            <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,6,0,0" Text="{Binding AccessStatus}" />
+                        </StackPanel>
+                    </Expander>
+                    <Expander Header="Tenant Users and Groups" Style="{StaticResource Section.Expander}" Margin="0,10,0,0" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <DockPanel>
+                                <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportInventoryCommand}" />
+                                <TextBlock Text="{Binding InventoryText}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            </DockPanel>
+                            <TextBox Text="{Binding InventorySearch, UpdateSourceTrigger=PropertyChanged}" Width="320" HorizontalAlignment="Left" Margin="0,6,0,6"
+                                     AutomationProperties.Name="Search users and groups" ToolTip="Search by name, UPN, department, job title or ID" />
+                            <TabControl>
+                                <TabItem Header="Groups">
+                                    <DataGrid ItemsSource="{Binding InventoryGroupsView}" IsReadOnly="True" AutoGenerateColumns="False" MaxHeight="360">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Group" Binding="{Binding DisplayName}" Width="2*" />
+                                            <DataGridTextColumn Header="Type" Binding="{Binding Kind}" Width="*" />
+                                            <DataGridCheckBoxColumn Header="Dynamic" Binding="{Binding IsDynamic, Mode=OneWay}" Width="Auto" />
+                                            <DataGridTextColumn Header="Members" Binding="{Binding MemberCount}" Width="Auto" />
+                                            <DataGridCheckBoxColumn Header="Synced" Binding="{Binding IsSynced, Mode=OneWay}" Width="Auto" />
+                                            <DataGridTextColumn Header="Object ID" Binding="{Binding ObjectId}" Width="1.6*" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </TabItem>
+                                <TabItem Header="Users">
+                                    <DataGrid ItemsSource="{Binding InventoryUsersView}" IsReadOnly="True" AutoGenerateColumns="False" MaxHeight="360">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Name" Binding="{Binding DisplayName}" Width="1.4*" />
+                                            <DataGridTextColumn Header="UPN" Binding="{Binding UserPrincipalName}" Width="1.6*" />
+                                            <DataGridTextColumn Header="Department" Binding="{Binding Department}" Width="*" />
+                                            <DataGridTextColumn Header="Job Title" Binding="{Binding JobTitle}" Width="*" />
+                                            <DataGridTextColumn Header="Type" Binding="{Binding UserType}" Width="Auto" />
+                                            <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding AccountEnabled, Mode=OneWay}" Width="Auto" />
+                                            <DataGridTextColumn Header="MFA" Binding="{Binding MfaText}" Width="Auto" />
+                                            <DataGridTextColumn Header="Licences" Binding="{Binding LicensesText}" Width="1.2*" />
+                                            <DataGridTextColumn Header="Admin Roles" Binding="{Binding RolesText}" Width="1.2*" />
+                                            <DataGridTextColumn Header="Last Sign-in" Binding="{Binding LastSignInText}" Width="Auto" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </TabItem>
+                            </TabControl>
+                        </StackPanel>
+                    </Expander>
+                    <Expander Header="Change History" Style="{StaticResource Section.Expander}" Margin="0,10,0,0" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                        <DataGrid ItemsSource="{Binding History}" MaxHeight="240">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="When" Binding="{Binding When}" Width="Auto" />
+                                <DataGridTextColumn Header="Who" Binding="{Binding Who}" Width="Auto" />
+                                <DataGridTextColumn Header="Property" Binding="{Binding Property}" Width="*" />
+                                <DataGridTextColumn Header="Old Value" Binding="{Binding OldValue}" Width="*" />
+                                <DataGridTextColumn Header="New Value" Binding="{Binding NewValue}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Expander>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <Border Style="{StaticResource Card}">
+            <Expander Header="Industry List (Leads)">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,4,0,6"
+                               Text="The industries offered on customer profiles. GDS values are never overwritten once edited; untick Active to hide a value without losing it on existing customers." />
+                    <DataGrid ItemsSource="{Binding IndustryRows}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="320">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="2*" />
+                            <DataGridTextColumn Header="Order" Binding="{Binding SortOrder, UpdateSourceTrigger=PropertyChanged}" Width="70" />
+                            <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive, UpdateSourceTrigger=PropertyChanged}" Width="70" />
+                            <DataGridTextColumn Header="Origin" Binding="{Binding Origin}" IsReadOnly="True" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <WrapPanel Margin="0,6,0,0">
+                        <Button Content="Add Industry" Command="{Binding AddIndustryCommand}" Style="{StaticResource Button.Secondary}" />
+                        <Button Content="Save Industry List" Command="{Binding SaveIndustriesCommand}" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding IndustryMessage}" TextWrapping="Wrap" Visibility="{Binding IndustryMessage, Converter={StaticResource TextToVisibility}}" />
+                </StackPanel>
+            </Expander>
+        </Border>
+    </StackPanel>
+</UserControl>

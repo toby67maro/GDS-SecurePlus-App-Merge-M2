@@ -1,0 +1,177 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Live.LiveAssessmentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls"
+             x:Name="Page">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Live Assessment" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,2,0,8"
+                           Text="Build a run list of up to 25 customers, then assess one tenant or all of them now. Each run reads the tenant with the customer's app registration (read-only Microsoft Graph and public DNS) and its results are saved to the database." />
+                <WrapPanel>
+                    <Button Content="Run Live Assessments Now" Command="{Binding RunAllCommand}" IsEnabled="{Binding CanRunAll}" />
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource Button.Danger}"
+                            Visibility="{Binding IsRunningAll, Converter={StaticResource BoolToVisibility}}" />
+                    <StackPanel Margin="12,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Max Concurrent Assessments" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <TextBox x:Name="MaxConcurrent" Text="{Binding MaxConcurrentText, UpdateSourceTrigger=PropertyChanged}" Width="56" TextAlignment="Center"
+                                     AutomationProperties.Name="Max concurrent assessments" ToolTip="1 to 20; default 5">
+                                <TextBox.Style>
+                                    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding MaxCorrected}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource AppBrush.Error}" />
+                                                <Setter Property="FontWeight" Value="SemiBold" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </StackPanel>
+                        <TextBlock Text="Max is 20" Style="{StaticResource Text.Helper}" HorizontalAlignment="Right" />
+                    </StackPanel>
+                </WrapPanel>
+
+                <WrapPanel Margin="0,8,0,0">
+                    <controls:SearchBox Text="{Binding CustomerSearch, Mode=TwoWay}" Placeholder="Search customers to add" Width="260" Margin="0,0,8,4" />
+                    <ComboBox ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding CustomerToAdd}" DisplayMemberPath="Name" Width="240" Margin="0,0,8,4"
+                              AutomationProperties.Name="Customer to add" IsEnabled="{Binding CanAdd}" />
+                    <Button Content="&#xE710;" Style="{StaticResource Button.Icon}" Command="{Binding AddCustomerCommand}" IsEnabled="{Binding CanAdd}" ToolTip="Add (+)"
+                            AutomationProperties.Name="Add customer" BorderBrush="{DynamicResource AppBrush.InputBorder}" />
+                    <TextBlock Text="{Binding RunListLimitText}" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                </WrapPanel>
+
+                <controls:ResizablePanel Header="Run List" PanelHeight="240">
+                    <DataGrid ItemsSource="{Binding RunList}" SelectedItem="{Binding SelectedRow}" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Customer" Binding="{Binding Customer}" Width="*" />
+                            <DataGridTextColumn Header="Tenant" Binding="{Binding Tenant}" Width="*" />
+                            <DataGridTemplateColumn Header="Status" Width="2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Status}" FontWeight="{DynamicResource AppFont.Weight.Medium}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="{x:Type TextBlock}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsFailed}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource AppBrush.Error}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource AppBrush.Success}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <ProgressBar Value="{Binding Progress}" Maximum="100" Margin="0,2,0,2"
+                                                         Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibility}}" />
+                                            <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Actions" Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Assess Tenant Now" Style="{StaticResource Button.Secondary}" Padding="8,2" Margin="0,0,4,0"
+                                                    Command="{Binding DataContext.AssessTenantNowCommand, ElementName=Page}" CommandParameter="{Binding}" IsEnabled="{Binding IsIdle}" />
+                                            <Button Content="&#xE738;" Style="{StaticResource Button.Icon}" ToolTip="Remove (−)" AutomationProperties.Name="Remove customer"
+                                                    Command="{Binding DataContext.RemoveCustomerCommand, ElementName=Page}" CommandParameter="{Binding}" IsEnabled="{Binding IsIdle}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Visibility="{Binding HasData, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Heading3}"><Run Text="Tenant: " /><Run Text="{Binding CustomerName, Mode=OneWay}" /></TextBlock>
+                <TextBlock Text="{Binding CollectedText}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" />
+                <TextBlock Text="Select a completed row in the run list to see what was read from its tenant." Style="{StaticResource Text.Caption}" />
+            </StackPanel>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding Tiles}" Visibility="{Binding HasData, Converter={StaticResource BoolToVisibility}}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{StaticResource Card}" Width="190" Margin="0,0,10,10">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Secondary}" />
+                            <TextBlock Text="{Binding Value}" FontSize="{DynamicResource AppFont.Size.Heading1}" FontWeight="SemiBold" Foreground="{DynamicResource AppBrush.Accent}" />
+                            <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel Visibility="{Binding HasData, Converter={StaticResource BoolToVisibility}}">
+            <Border Style="{StaticResource Card}">
+                <controls:ResizablePanel Header="Microsoft 365 Baseline Checks (Live)" PanelHeight="300">
+                    <DataGrid ItemsSource="{Binding Checks}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Area" Binding="{Binding Area}" Width="120" />
+                            <DataGridTextColumn Header="Check" Binding="{Binding Control}" Width="2*" />
+                            <DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="90" />
+                            <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="70" />
+                            <DataGridTextColumn Header="Evidence" Binding="{Binding Evidence}" Width="3*" />
+                            <DataGridTextColumn Header="Recommendation" Binding="{Binding Recommendation}" Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <controls:ResizablePanel Header="Conditional Access Policies" PanelHeight="240">
+                    <DataGrid ItemsSource="{Binding ConditionalAccess}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Policy" Binding="{Binding Name}" Width="3*" />
+                            <DataGridTextColumn Header="State" Binding="{Binding State}" Width="150" />
+                            <DataGridTextColumn Header="Users" Binding="{Binding Users}" Width="*" />
+                            <DataGridTextColumn Header="Targets" Binding="{Binding Targets}" Width="*" />
+                            <DataGridTextColumn Header="Grant" Binding="{Binding Grant}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <controls:ResizablePanel Header="Intune Policies" PanelHeight="240">
+                    <DataGrid ItemsSource="{Binding IntunePolicies}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Policy" Binding="{Binding Name}" Width="3*" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="2*" />
+                            <DataGridTextColumn Header="Platforms" Binding="{Binding Platforms}" Width="*" />
+                            <DataGridTextColumn Header="Settings" Binding="{Binding Settings}" Width="80" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <controls:ResizablePanel Header="Data Read From the Tenant (Forbidden = permission missing)" PanelHeight="220">
+                    <DataGrid ItemsSource="{Binding Datasets}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Dataset" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                            <DataGridTextColumn Header="Items" Binding="{Binding Items}" Width="70" />
+                            <DataGridTextColumn Header="Request" Binding="{Binding Source}" Width="2*" />
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </Border>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,77 @@
+<Application x:Class="EngineeringWorkspace.Desktop.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:EngineeringWorkspace.Desktop.Converters"
+             xmlns:database="clr-namespace:EngineeringWorkspace.Desktop.Pages.Database"
+             xmlns:credentials="clr-namespace:EngineeringWorkspace.Desktop.Pages.Credentials"
+             xmlns:tenants="clr-namespace:EngineeringWorkspace.Desktop.Pages.Tenants"
+             xmlns:appearance="clr-namespace:EngineeringWorkspace.Desktop.Pages.Appearance"
+             xmlns:auditing="clr-namespace:EngineeringWorkspace.Desktop.Pages.Auditing"
+             xmlns:dashboard="clr-namespace:EngineeringWorkspace.Desktop.Pages.Dashboard"
+             xmlns:assessments="clr-namespace:EngineeringWorkspace.Desktop.Pages.Assessments"
+             xmlns:settings="clr-namespace:EngineeringWorkspace.Desktop.Pages.Settings"
+             xmlns:catalog="clr-namespace:EngineeringWorkspace.Desktop.Pages.Catalog"
+             xmlns:live="clr-namespace:EngineeringWorkspace.Desktop.Pages.Live"
+             xmlns:deployment="clr-namespace:EngineeringWorkspace.Desktop.Pages.Deployment"
+             xmlns:customers="clr-namespace:EngineeringWorkspace.Desktop.Pages.Customers"
+             xmlns:specifications="clr-namespace:EngineeringWorkspace.Desktop.Pages.Specifications"
+             xmlns:insights="clr-namespace:EngineeringWorkspace.Desktop.Pages.Insights"
+             xmlns:reporting="clr-namespace:EngineeringWorkspace.Desktop.Pages.Reporting"
+             xmlns:advanced="clr-namespace:EngineeringWorkspace.Desktop.Pages.Advanced"
+             xmlns:experience="clr-namespace:EngineeringWorkspace.Desktop.Pages.Experience"
+             xmlns:planning="clr-namespace:EngineeringWorkspace.Desktop.Pages.Planning"
+             ShutdownMode="OnExplicitShutdown"
+             Startup="OnStartup">
+    <!-- No StartupUri: the Generic Host composition root in App.xaml.cs shows the main window. -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- The theme dictionary (AppColor/AppBrush/AppFont/AppLayout/AppSpacing/AppCorner) is inserted first at runtime by ThemeManager. -->
+                <ResourceDictionary Source="Themes/Controls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <converters:CheckStateToGlyphConverter x:Key="CheckStateGlyph" />
+            <converters:TextToVisibilityConverter x:Key="TextToVisibility" />
+            <converters:UtcToLocalTextConverter x:Key="UtcToLocalText" />
+            <converters:InverseBooleanConverter x:Key="InverseBool" />
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibility" />
+            <converters:CountToVisibilityConverter x:Key="CountToVisibility" />
+            <converters:ViewportWidthConverter x:Key="ViewportWidth" />
+
+            <!-- View resolution: each page ViewModel type renders with its view. -->
+            <DataTemplate DataType="{x:Type database:DatabaseConfigurationViewModel}"><database:DatabaseConfigurationView /></DataTemplate>
+            <DataTemplate DataType="{x:Type database:DatabaseHealthViewModel}"><database:DatabaseHealthView /></DataTemplate>
+            <DataTemplate DataType="{x:Type credentials:CredentialManagementViewModel}"><credentials:CredentialManagementView /></DataTemplate>
+            <DataTemplate DataType="{x:Type settings:UsersAndRolesViewModel}"><settings:UsersAndRolesView /></DataTemplate>
+            <DataTemplate DataType="{x:Type tenants:TenantAppRegistrationViewModel}"><tenants:TenantAppRegistrationView /></DataTemplate>
+            <DataTemplate DataType="{x:Type appearance:AppearanceViewModel}"><appearance:AppearanceView /></DataTemplate>
+            <DataTemplate DataType="{x:Type auditing:AuditingAndLogsViewModel}"><auditing:AuditingAndLogsView /></DataTemplate>
+            <DataTemplate DataType="{x:Type dashboard:DashboardViewModel}"><dashboard:DashboardView /></DataTemplate>
+            <DataTemplate DataType="{x:Type assessments:AssessmentHistoryViewModel}"><assessments:AssessmentHistoryView /></DataTemplate>
+            <DataTemplate DataType="{x:Type settings:ApplicationSettingsViewModel}"><settings:ApplicationSettingsView /></DataTemplate>
+            <DataTemplate DataType="{x:Type catalog:CatalogViewModel}"><catalog:CatalogView /></DataTemplate>
+            <DataTemplate DataType="{x:Type live:LiveAssessmentViewModel}"><live:LiveAssessmentView /></DataTemplate>
+            <DataTemplate DataType="{x:Type customers:ExceptionsViewModel}"><customers:ExceptionsView /></DataTemplate>
+            <DataTemplate DataType="{x:Type customers:CustomerProfilesViewModel}"><customers:CustomerProfilesView /></DataTemplate>
+            <DataTemplate DataType="{x:Type specifications:SpecificationProfilesViewModel}"><specifications:SpecificationProfilesView /></DataTemplate>
+            <DataTemplate DataType="{x:Type deployment:ChangeRequestViewModel}"><deployment:ChangeRequestView /></DataTemplate>
+            <DataTemplate DataType="{x:Type deployment:ChangeExecutionViewModel}"><deployment:ChangeExecutionView /></DataTemplate>
+            <DataTemplate DataType="{x:Type deployment:TrackerViewModel}"><deployment:TrackerView /></DataTemplate>
+            <DataTemplate DataType="{x:Type settings:BaselineConfigurationsViewModel}"><settings:BaselineConfigurationsView /></DataTemplate>
+            <DataTemplate DataType="{x:Type settings:WorkspaceConfigurationViewModel}"><settings:WorkspaceConfigurationView /></DataTemplate>
+            <DataTemplate DataType="{x:Type reporting:CompletionReportViewModel}"><reporting:CompletionReportView /></DataTemplate>
+            <DataTemplate DataType="{x:Type advanced:DataExplorerViewModel}"><advanced:DataExplorerView /></DataTemplate>
+            <DataTemplate DataType="{x:Type advanced:DiagnosticsViewModel}"><advanced:DiagnosticsView /></DataTemplate>
+            <DataTemplate DataType="{x:Type experience:ExperienceConfigurationViewModel}"><experience:ExperienceConfigurationView /></DataTemplate>
+            <DataTemplate DataType="{x:Type experience:ExperienceMapViewModel}"><experience:ExperienceMapView /></DataTemplate>
+            <DataTemplate DataType="{x:Type planning:ProjectPlanViewModel}"><planning:ProjectPlanView /></DataTemplate>
+            <DataTemplate DataType="{x:Type planning:SowViewModel}"><planning:SowView /></DataTemplate>
+            <DataTemplate DataType="{x:Type insights:RoadmapViewModel}"><insights:RoadmapView /></DataTemplate>
+            <DataTemplate DataType="{x:Type insights:HeatMapViewModel}"><insights:HeatMapView /></DataTemplate>
+            <DataTemplate DataType="{x:Type insights:FleetViewModel}"><insights:FleetView /></DataTemplate>
+            <DataTemplate DataType="{x:Type settings:PolicyEditorViewModel}"><settings:PolicyEditorView /></DataTemplate>
+            <DataTemplate DataType="{x:Type specifications:SpecificationComparisonViewModel}"><specifications:SpecificationComparisonView /></DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

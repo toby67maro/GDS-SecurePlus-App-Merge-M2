@@ -1,0 +1,80 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Settings.ApplicationSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                           Text="Settings are saved to the INI files in the per-user configuration folder. Each value shows where its effective value comes from; a workspace, customer, environment variable or command-line value overrides the file. Changes apply after a restart." />
+                <WrapPanel Margin="0,8,0,0">
+                    <Button Content="Save Changes" Command="{Binding SaveCommand}" />
+                    <Button Content="Discard Changes" Command="{Binding ResetCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Restart Now" Command="{Binding RestartCommand}" Style="{StaticResource Button.Secondary}"
+                            Visibility="{Binding RestartRequired, Converter={StaticResource BoolToVisibility}}" />
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Advanced Mode" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                           Text="Shows the Advanced menu (engineering tools such as the Data Explorer and Diagnostics). Check the box and enter the passcode next to it; Advanced Mode turns on only when the passcode is correct." />
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <CheckBox Content="Enable Advanced Mode" IsChecked="{Binding AdvancedModeRequested}" VerticalAlignment="Center"
+                              AutomationProperties.Name="Enable Advanced Mode" />
+                    <PasswordBox x:Name="AdvancedPasscodeBox" Width="220" Margin="12,0,0,0" VerticalAlignment="Center"
+                                 PasswordChanged="OnAdvancedPasscodeChanged" AutomationProperties.Name="Advanced Mode passcode" />
+                </StackPanel>
+                <TextBlock Text="{Binding AdvancedModeStatus}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding Groups}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Expander IsExpanded="True" Margin="0,0,0,8">
+                        <Expander.Header>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Heading3}" />
+                                <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Expander.Header>
+                        <Border Style="{StaticResource Card}">
+                            <ItemsControl ItemsSource="{Binding Fields}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="260" />
+                                                <ColumnDefinition Width="*" MinWidth="240" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Label}" FontWeight="{DynamicResource AppFont.Weight.Medium}" TextWrapping="Wrap" />
+                                                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap">
+                                                    <Run Text="{Binding Section, Mode=OneWay}" /><Run Text=":" /><Run Text="{Binding Key, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsText, Converter={StaticResource BoolToVisibility}}"
+                                                         AutomationProperties.Name="{Binding Label}" />
+                                                <CheckBox IsChecked="{Binding BoolValue}" Content="Enabled" Visibility="{Binding IsBoolean, Converter={StaticResource BoolToVisibility}}"
+                                                          AutomationProperties.Name="{Binding Label}" />
+                                                <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Value}" Visibility="{Binding IsChoice, Converter={StaticResource BoolToVisibility}}"
+                                                          AutomationProperties.Name="{Binding Label}" />
+                                                <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Source}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Opacity="0.8" />
+                                                <TextBlock Text="{Binding Error}" Style="{StaticResource Text.Error}" Visibility="{Binding Error, Converter={StaticResource TextToVisibility}}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Border>
+                    </Expander>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

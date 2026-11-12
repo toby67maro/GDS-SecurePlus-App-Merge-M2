@@ -1,0 +1,181 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Database.DatabaseHealthView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Border Background="{Binding OverallFill}" CornerRadius="10" Padding="10,2" Margin="0,0,8,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Overall}" Foreground="White" FontWeight="SemiBold" AutomationProperties.Name="Overall health" />
+                        </Border>
+                        <Button Content="Refresh Now" Command="{Binding RefreshCommand}" Style="{StaticResource Button.Secondary}" />
+                    </StackPanel>
+                    <TextBlock Text="Database Health" Style="{StaticResource Text.Heading3}" Margin="0" />
+                </DockPanel>
+                <TextBlock Text="{Binding ServerCaption}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap">
+                    <Run Text="{Binding LastUpdated, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" · " /><Run Text="{Binding RefreshState, Mode=OneWay}" />
+                </TextBlock>
+                <ProgressBar IsIndeterminate="True" Height="3" Margin="0,4,0,0" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <controls:KpiPanel ItemsSource="{Binding Kpis}" />
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Scheduling Computer" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Text="{Binding SchedulingCaption}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                <Border Visibility="{Binding SchedulingStale, Converter={StaticResource BoolToVisibility}}" Background="#FFFDECEA" BorderBrush="#FFD13438" BorderThickness="1"
+                        CornerRadius="4" Padding="8,4" Margin="0,0,0,6">
+                    <TextBlock Text="Recurring assessments have stopped: the scheduling computer has not checked in." Foreground="#FFA4262C" FontWeight="SemiBold" TextWrapping="Wrap" />
+                </Border>
+                <WrapPanel>
+                    <StackPanel Width="240" Margin="0,0,12,6">
+                        <TextBlock Text="Computer Name (empty = any computer)" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding SchedulingComputer, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Scheduling computer" />
+                    </StackPanel>
+                    <Button Content="Use This Computer" Command="{Binding UseThisComputerCommand}" Style="{StaticResource Button.Secondary}" VerticalAlignment="Bottom" Margin="0,0,8,6" />
+                    <Button Content="Set Scheduling Computer" Command="{Binding SetSchedulingComputerCommand}" VerticalAlignment="Bottom" Margin="0,0,0,6" />
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Alerts" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Text="No warnings: every measured value is within its thresholds." Style="{StaticResource Text.Secondary}"
+                           Visibility="{Binding Alerts.Count, Converter={StaticResource CountToVisibility}, ConverterParameter=invert}" />
+                <ItemsControl ItemsSource="{Binding Alerts}" Focusable="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="0,2">
+                                <Border DockPanel.Dock="Left" Background="{Binding Fill}" CornerRadius="8" Padding="8,1" Margin="0,0,8,0" MinWidth="86">
+                                    <TextBlock Text="{Binding Severity}" Foreground="White" HorizontalAlignment="Center" />
+                                </Border>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding Area}" FontWeight="SemiBold" Width="100" />
+                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Limitations}" Focusable="False" Margin="0,6,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Visibility="{Binding GrantScript, Converter={StaticResource TextToVisibility}}" Margin="0,8,0,0">
+                    <TextBlock Text="Grant the Read-Only Monitoring Permission" Style="{StaticResource Text.Label}" />
+                    <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                               Text="The application never changes server permissions itself. An administrator runs this script once to show every metric." />
+                    <controls:CodeView Code="{Binding GrantScript}" CodeLanguage="sql" Margin="0,4,0,4" />
+                    <Button Content="Copy Grant Script" Command="{Binding CopyGrantScriptCommand}" Style="{StaticResource Button.Secondary}" HorizontalAlignment="Left" />
+                </StackPanel>
+                <TextBlock Text="{Binding ThresholdsCaption}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Files and Disk Space" Style="{StaticResource Text.Heading3}" />
+                <DataGrid ItemsSource="{Binding Files}" MaxHeight="220">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="File" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="Auto" />
+                        <DataGridTextColumn Header="Size (MB)" Binding="{Binding SizeMb, StringFormat=N1}" Width="Auto" />
+                        <DataGridTextColumn Header="Used (MB)" Binding="{Binding UsedMb, StringFormat=N1, TargetNullValue=–}" Width="Auto" />
+                        <DataGridTextColumn Header="Used %" Binding="{Binding UsedPercent, StringFormat={}{0:0.#}%, TargetNullValue=–}" Width="Auto" />
+                        <DataGridTextColumn Header="Max Size" Binding="{Binding MaxSize}" Width="Auto" />
+                        <DataGridTextColumn Header="Growth" Binding="{Binding Growth}" Width="Auto" />
+                        <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="2*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <DataGrid ItemsSource="{Binding Volumes}" MaxHeight="160" Margin="0,8,0,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Volume" Binding="{Binding Volume}" Width="*" />
+                        <DataGridTextColumn Header="Total (GB)" Binding="{Binding TotalGb, StringFormat=N1}" Width="Auto" />
+                        <DataGridTextColumn Header="Free (GB)" Binding="{Binding FreeGb, StringFormat=N1}" Width="Auto" />
+                        <DataGridTextColumn Header="Free %" Binding="{Binding FreePercent, StringFormat={}{0:0.#}%}" Width="Auto" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Visibility="{Binding IsServer, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="Top Waits" Style="{StaticResource Text.Heading3}" />
+                <DataGrid ItemsSource="{Binding Waits}" MaxHeight="240">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Wait Type" Binding="{Binding WaitType}" Width="2*" />
+                        <DataGridTextColumn Header="Wait (s)" Binding="{Binding WaitSeconds, StringFormat=N0}" Width="Auto" />
+                        <DataGridTextColumn Header="Waiting Tasks" Binding="{Binding WaitingTasks, StringFormat=N0}" Width="Auto" />
+                        <DataGridTextColumn Header="Share" Binding="{Binding Percent, StringFormat={}{0:0.#}%}" Width="Auto" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBlock Text="Blocking" Style="{StaticResource Text.Heading3}" Margin="0,10,0,0" />
+                <TextBlock Text="No blocked requests." Style="{StaticResource Text.Secondary}"
+                           Visibility="{Binding Blocking.Count, Converter={StaticResource CountToVisibility}, ConverterParameter=invert}" />
+                <DataGrid ItemsSource="{Binding Blocking}" MaxHeight="200" Visibility="{Binding Blocking.Count, Converter={StaticResource CountToVisibility}}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Session" Binding="{Binding SessionId}" Width="Auto" />
+                        <DataGridTextColumn Header="Blocked By" Binding="{Binding BlockedBy}" Width="Auto" />
+                        <DataGridTextColumn Header="Command" Binding="{Binding Command}" Width="*" />
+                        <DataGridTextColumn Header="Wait Type" Binding="{Binding WaitType}" Width="*" />
+                        <DataGridTextColumn Header="Wait (s)" Binding="{Binding WaitSeconds, StringFormat=N1}" Width="Auto" />
+                        <DataGridTextColumn Header="Database" Binding="{Binding Database}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Growth Trend" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                           Text="Full backup sizes of the last 90 days when backup history is readable, otherwise the used size measured each day this page was open." />
+                <controls:BarChart ItemsSource="{Binding Growth}" Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                        <controls:ExportButtons Command="{Binding ExportCoverageCommand}" />
+                        <Button Content="Count Again" Command="{Binding CountTablesCommand}" Style="{StaticResource Button.Secondary}" />
+                    </StackPanel>
+                    <TextBlock Text="Data Coverage" Style="{StaticResource Text.Heading3}" Margin="0" />
+                </DockPanel>
+                <TextBlock Text="{Binding CoverageCaption}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" />
+                <DockPanel Margin="0,6,0,0">
+                    <Button DockPanel.Dock="Right" Content="Reload Knowledge Base" Command="{Binding ReloadKnowledgeBaseCommand}" Style="{StaticResource Button.Secondary}" VerticalAlignment="Top" />
+                    <TextBlock Text="{Binding KnowledgeBaseCaption}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                </DockPanel>
+                <WrapPanel Margin="0,6,0,0">
+                    <controls:SearchBox Text="{Binding CoverageSearch, Mode=TwoWay}" Placeholder="Search tables" Width="260" Margin="0,0,12,6" />
+                    <StackPanel Orientation="Horizontal" Margin="0,0,12,6">
+                        <TextBlock Text="Filled By" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox ItemsSource="{Binding CoverageOwners}" SelectedItem="{Binding CoverageOwner}" Width="220" AutomationProperties.Name="Filled by" />
+                    </StackPanel>
+                    <CheckBox Content="Needs Attention Only" IsChecked="{Binding CoverageAttentionOnly}" Margin="0,0,12,6" />
+                </WrapPanel>
+                <controls:ResizablePanel Header="Tables" PanelHeight="360">
+                    <DataGrid ItemsSource="{Binding CoverageView}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Table" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Rows" Binding="{Binding Rows, StringFormat=N0}" Width="Auto" />
+                            <DataGridTextColumn Header="State" Binding="{Binding State}" Width="Auto" />
+                            <DataGridTextColumn Header="Filled By" Binding="{Binding OwnerName}" Width="Auto" />
+                            <DataGridTextColumn Header="Purpose" Binding="{Binding Purpose}" Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

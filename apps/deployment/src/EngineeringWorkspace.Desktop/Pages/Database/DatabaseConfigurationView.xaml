@@ -1,0 +1,259 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Database.DatabaseConfigurationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" MinWidth="420" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="2*" MinWidth="320" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <Border Style="{StaticResource Card}" Visibility="{Binding IsSqlite, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <TextBlock Text="Move to SQL Server" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                    <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                               Text="SQLite is no longer supported for everyday use. Move this database once into the shared SQL Server: the SQLite file is backed up and left unchanged, and the copy is kept only when every table's row count matches." />
+                    <WrapPanel Margin="0,6,0,0">
+                        <StackPanel Width="240" Margin="0,0,12,6">
+                            <TextBlock Text="SQL Server" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding MoveServer, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="SQL Server to move to" />
+                        </StackPanel>
+                        <StackPanel Width="180" Margin="0,0,12,6">
+                            <TextBlock Text="Database" Style="{StaticResource Text.Label}" />
+                            <TextBox Text="{Binding MoveDatabase, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Database to move to" />
+                        </StackPanel>
+                        <Button Content="Move to SQL Server..." Command="{Binding MoveToSqlServerCommand}" VerticalAlignment="Bottom" Margin="0,0,0,6" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding MoveSummary}" TextWrapping="Wrap" Margin="0,4,0,4" />
+                    <DataGrid ItemsSource="{Binding MoveResults}" MaxHeight="260" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Table" Binding="{Binding Table}" Width="2*" />
+                            <DataGridTextColumn Header="SQLite Rows" Binding="{Binding SourceRows}" Width="Auto" />
+                            <DataGridTextColumn Header="SQL Server Rows" Binding="{Binding TargetRows}" Width="Auto" />
+                            <DataGridCheckBoxColumn Header="Matches" Binding="{Binding Matches, Mode=OneWay}" Width="Auto" />
+                            <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Connection" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                    <TextBlock Style="{StaticResource Text.Caption}" Text="Secure Plus uses a shared SQL Server 2022 (or Azure SQL) database with Windows Authentication." TextWrapping="Wrap" />
+                    <TextBlock Style="{StaticResource Text.Caption}" Text="{Binding InstallDescription}" TextWrapping="Wrap" Margin="0,4,0,8" />
+                    <TextBlock Style="{StaticResource Text.Label}" Text="Provider" />
+                    <ComboBox ItemsSource="{Binding Providers}" SelectedItem="{Binding Provider}" AutomationProperties.Name="Provider" />
+
+                    <StackPanel Visibility="{Binding IsServerProvider, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Server" />
+                        <TextBox Text="{Binding ServerName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Server" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="140" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Instance (optional)" />
+                                <TextBox Text="{Binding SqlInstance, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Instance" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Port (optional)" />
+                                <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Port" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding IsConfigured, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Style="{StaticResource Text.Label}" Text="{Binding DatabaseNameLabel}" />
+                        <TextBox Text="{Binding DatabaseName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Database" />
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding IsServerProvider, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Authentication" />
+                        <ComboBox ItemsSource="{Binding AuthenticationMethods}" SelectedItem="{Binding Authentication}" AutomationProperties.Name="Authentication" />
+
+                        <StackPanel Visibility="{Binding IsSqlLogin, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Style="{StaticResource Text.Label}" Text="SQL Login User Name" />
+                            <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="User name" />
+                            <TextBlock Style="{StaticResource Text.Label}" Text="Password (write-only; stored with Credential Management, never in Database.ini)" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <PasswordBox x:Name="SqlPasswordBox" PasswordChanged="OnSqlPasswordChanged" AutomationProperties.Name="SQL password" />
+                                <Button Grid.Column="1" Content="Store Password" Command="{Binding StoreSqlPasswordCommand}" Margin="8,0,0,4" Style="{StaticResource Button.Secondary}" />
+                            </Grid>
+                            <TextBlock Style="{StaticResource Text.Label}" Text="Password Secret Reference" />
+                            <TextBox Text="{Binding PasswordSecretReference, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Password secret reference" />
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding NeedsEntraClientId, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Style="{StaticResource Text.Label}" Text="Microsoft Entra Client ID" />
+                            <TextBox Text="{Binding EntraClientId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Entra client ID" />
+                            <TextBlock Style="{StaticResource Text.Caption}" Visibility="{Binding IsEntraInteractive, Converter={StaticResource BoolToVisibility}}"
+                                       Text="Interactive sign-in uses a public-client app registration with the http://localhost redirect URI. The sign-in opens in the system browser." />
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsEntraServicePrincipal, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Style="{StaticResource Text.Label}" Text="Service Principal Tenant ID" />
+                            <TextBox Text="{Binding EntraTenantId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Entra tenant ID" />
+                            <TextBlock Style="{StaticResource Text.Label}" Text="Client Secret (write-only)" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <PasswordBox x:Name="ServicePrincipalSecretBox" PasswordChanged="OnServicePrincipalSecretChanged" AutomationProperties.Name="Service principal secret" />
+                                <Button Grid.Column="1" Content="Store Secret" Command="{Binding StoreServicePrincipalSecretCommand}" Margin="8,0,0,4" Style="{StaticResource Button.Secondary}" />
+                            </Grid>
+                            <TextBlock Style="{StaticResource Text.Label}" Text="Client Secret Reference" />
+                            <TextBox Text="{Binding EntraClientSecretReference, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Client secret reference" />
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsManagedIdentity, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Style="{StaticResource Text.Label}" Text="User-assigned Managed Identity Client ID (empty = system-assigned)" />
+                            <TextBox Text="{Binding ManagedIdentityClientId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Managed identity client ID" />
+                            <TextBlock Style="{StaticResource Text.Caption}" Text="Managed identity works only where the application runs on an Azure-hosted machine; it is intended for future hosted use." />
+                        </StackPanel>
+
+                        <WrapPanel Margin="0,8,0,0">
+                            <CheckBox Content="Encrypt Connection" IsChecked="{Binding EncryptConnection}" />
+                            <CheckBox Content="Trust Server Certificate (development only)" IsChecked="{Binding TrustServerCertificate}" />
+                        </WrapPanel>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" /><ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Connect Timeout (s)" />
+                                <TextBox Text="{Binding ConnectionTimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Command Timeout (s)" />
+                                <TextBox Text="{Binding CommandTimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Connect Retries" />
+                                <TextBox Text="{Binding RetryCount, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="6">
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Retry Delay (s)" />
+                                <TextBox Text="{Binding RetryDelaySeconds, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Connection String Secret Reference (optional; overrides the fields above)" />
+                        <TextBox Text="{Binding ConnectionStringSecretReference, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Connection string secret reference" />
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding IsConfigured, Converter={StaticResource BoolToVisibility}}" Margin="0,8,0,0">
+                        <CheckBox Content="Automatically Initialize the Schema After Create Database" IsChecked="{Binding AutomaticDatabaseInitialization}" />
+                        <CheckBox Content="Automatically Apply Schema Upgrades After Validate Schema" IsChecked="{Binding AutomaticSchemaUpgrade}" />
+                        <TextBlock Style="{StaticResource Text.Caption}" Text="Automatic options are off by default and never honoured in Production." />
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding ValidationErrors}" Margin="0,8,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Style="{StaticResource Text.Error}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Style="{StaticResource Text.Caption}" Margin="0,8,0,8" Text="{Binding WrittenFileDescription}" />
+                    <Button Content="Save Settings" Command="{Binding SaveSettingsCommand}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <StackPanel Grid.Column="2">
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Operations" Style="{StaticResource Text.Heading3}" Margin="0,0,0,8" />
+                    <Button Content="Install or Repair Database" Command="{Binding InstallOrRepairCommand}" HorizontalAlignment="Left" Margin="0,0,0,8"
+                            Visibility="{Binding IsConfigured, Converter={StaticResource BoolToVisibility}}"
+                            ToolTip="Saves the settings, creates the database if needed, then installs, upgrades or repairs the schema." />
+                    <WrapPanel>
+                        <Button Content="Test Connection" Command="{Binding TestConnectionCommand}" Visibility="{Binding IsConfigured, Converter={StaticResource BoolToVisibility}}" />
+                        <Button Content="Check Database" Command="{Binding CheckDatabaseCommand}" Visibility="{Binding IsConfigured, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource Button.Secondary}" />
+                        <Button Content="Create Database" Command="{Binding CreateDatabaseCommand}" Visibility="{Binding CanCreateDatabase, Converter={StaticResource BoolToVisibility}}" />
+                        <Button Content="Validate Schema" Command="{Binding ValidateSchemaCommand}" Visibility="{Binding CanValidateSchema, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource Button.Secondary}" />
+                        <Button Content="Initialize Schema" Command="{Binding InitializeSchemaCommand}" Visibility="{Binding CanInitializeSchema, Converter={StaticResource BoolToVisibility}}" />
+                        <Button Content="Repair Schema" Command="{Binding RepairSchemaCommand}" Visibility="{Binding CanRepairSchema, Converter={StaticResource BoolToVisibility}}" />
+                        <Button Content="Refresh Status" Command="{Binding RefreshStatusCommand}" Visibility="{Binding IsConfigured, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource Button.Secondary}" />
+                    </WrapPanel>
+                    <StackPanel Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
+                        <ProgressBar IsIndeterminate="True" Margin="0,4,0,4" />
+                        <TextBlock Text="{Binding ProgressText}" Style="{StaticResource Text.Secondary}" />
+                        <Button Content="Cancel" Command="{Binding CancelCommand}" HorizontalAlignment="Left" Style="{StaticResource Button.Secondary}" Margin="0,8,0,0" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel DataContext="{Binding CurrentReport}">
+                    <TextBlock Text="Status" Style="{StaticResource Text.Heading3}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding State}" Tag="{Binding State}" Style="{StaticResource Text.State}" FontSize="{DynamicResource AppFont.Size.Heading3}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Style="{StaticResource Text.Secondary}" Text="Provider" /><TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Provider}" />
+                        <TextBlock Grid.Row="1" Style="{StaticResource Text.Secondary}" Text="Server" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Server}" />
+                        <TextBlock Grid.Row="2" Style="{StaticResource Text.Secondary}" Text="Database" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Database}" />
+                        <TextBlock Grid.Row="3" Style="{StaticResource Text.Secondary}" Text="Authentication" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Authentication}" />
+                        <TextBlock Grid.Row="4" Style="{StaticResource Text.Secondary}" Text="Encryption" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Encrypted}" />
+                        <TextBlock Grid.Row="5" Style="{StaticResource Text.Secondary}" Text="Server Version" /><TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding ServerVersion}" />
+                        <TextBlock Grid.Row="6" Style="{StaticResource Text.Secondary}" Text="Database Exists" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding DatabaseExists, TargetNullValue=Unknown}" />
+                        <TextBlock Grid.Row="7" Style="{StaticResource Text.Secondary}" Text="Schema State" /><TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding MigrationState}" />
+                        <TextBlock Grid.Row="8" Style="{StaticResource Text.Secondary}" Text="Schema Version" />
+                        <TextBlock Grid.Row="8" Grid.Column="1">
+                            <Run Text="{Binding CurrentSchemaVersion, TargetNullValue=none, Mode=OneWay}" /><Run Text=" of required " /><Run Text="{Binding RequiredSchemaVersion, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Grid.Row="9" Style="{StaticResource Text.Secondary}" Text="Last Successful Connection" /><TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding LastSuccessfulConnectionUtc, Converter={StaticResource UtcToLocalText}}" />
+                        <TextBlock Grid.Row="10" Style="{StaticResource Text.Secondary}" Text="Last Attempt" /><TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding LastAttemptUtc, Converter={StaticResource UtcToLocalText}}" />
+                        <TextBlock Grid.Row="11" Style="{StaticResource Text.Secondary}" Text="Failure Category" /><TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding FailureCategory}" />
+                    </Grid>
+                    <TextBlock Text="{Binding SanitizedError}" Visibility="{Binding SanitizedError, Converter={StaticResource TextToVisibility}}" Margin="0,8,0,0" />
+                    <TextBlock Text="{Binding RecommendedAction}" Visibility="{Binding RecommendedAction, Converter={StaticResource TextToVisibility}}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <TextBlock Text="Readiness Checklist" Style="{StaticResource Text.Heading3}" Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding Checks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding State, Converter={StaticResource CheckStateGlyph}}" Tag="{Binding State}" Style="{StaticResource Text.State}" AutomationProperties.Name="{Binding State}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Detail}" Style="{StaticResource Text.Secondary}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <ItemsControl ItemsSource="{Binding SchemaFindings}" Margin="0,8,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Style="{StaticResource Text.Secondary}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

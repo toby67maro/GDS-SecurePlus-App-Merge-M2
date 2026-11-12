@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/server/">
+    <Project Path="server/ArchiTech.Api/ArchiTech.Api.csproj" />
+    <Project Path="server/ArchiTech.DataTransfer/ArchiTech.DataTransfer.csproj" />
+    <Project Path="server/ArchiTech.ReadOnlyWorker/ArchiTech.ReadOnlyWorker.csproj" />
+    <Project Path="server/ArchiTech.Tests/ArchiTech.Tests.csproj" />
+  </Folder>
+</Solution>

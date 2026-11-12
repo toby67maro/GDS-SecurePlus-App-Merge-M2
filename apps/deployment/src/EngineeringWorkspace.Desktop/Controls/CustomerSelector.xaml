@@ -1,0 +1,11 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Controls.CustomerSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Page customer drop-down: binds to CustomerOptions, SelectedCustomer and FollowsGlobalText of a CustomerScopedPageViewModel. -->
+    <StackPanel>
+        <TextBlock Text="Customer" Style="{StaticResource Text.Label}" />
+        <ComboBox ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" DisplayMemberPath="Name" MinWidth="240"
+                  IsTextSearchEnabled="True" TextSearch.TextPath="Name" AutomationProperties.Name="Customer" />
+        <TextBlock Text="{Binding FollowsGlobalText}" Style="{StaticResource Text.Helper}" />
+    </StackPanel>
+</UserControl>

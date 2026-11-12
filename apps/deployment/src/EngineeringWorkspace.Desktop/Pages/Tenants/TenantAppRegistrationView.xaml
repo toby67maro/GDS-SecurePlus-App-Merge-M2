@@ -1,0 +1,211 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Tenants.TenantAppRegistrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls"
+             x:Name="Root">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Customer" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox ItemsSource="{Binding CustomerProfiles}" SelectedItem="{Binding SelectedCustomer}" DisplayMemberPath="Name" AutomationProperties.Name="Customer" />
+                    <Button Grid.Column="1" Content="Use as Current Customer" Command="{Binding SelectCustomerCommand}" Margin="8,0,0,4" Style="{StaticResource Button.Secondary}" />
+                </Grid>
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding NewCustomerName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New customer name" />
+                    <Button Grid.Column="1" Content="Create Customer" Command="{Binding CreateCustomerCommand}" Margin="8,0,0,4" Style="{StaticResource Button.Secondary}" />
+                </Grid>
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Visibility="{Binding HasCustomer, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="Automatic Setup (recommended)" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,2,0,8"
+                           Text="Sign in once as a Global Administrator of the customer's tenant: Secure Plus Agent registers the 'GDS Secure Plus Agent' enterprise app, configures and consents the read-only Microsoft Graph permissions listed below, creates and stores a client secret, saves the tenant and tests the connection. No manual steps in the Entra admin center." />
+                <WrapPanel>
+                    <Button Content="Register Automatically" Command="{Binding RegisterAutomaticallyCommand}" />
+                    <Button Content="Update Permissions Automatically" Command="{Binding UpdatePermissionsAutomaticallyCommand}" Style="{StaticResource Button.Secondary}"
+                            ToolTip="Adds missing permissions to the existing registration (keeps the ones already granted) and grants admin consent." />
+                    <ProgressBar IsIndeterminate="True" Width="140" Height="6" VerticalAlignment="Center" Visibility="{Binding IsAutomaticRunning, Converter={StaticResource BoolToVisibility}}" />
+                </WrapPanel>
+                <TextBlock Text="{Binding AutomaticStatus}" TextWrapping="Wrap" Visibility="{Binding AutomaticStatus, Converter={StaticResource TextToVisibility}}" />
+            </StackPanel>
+        </Border>
+
+        <Grid Visibility="{Binding HasCustomer, Converter={StaticResource BoolToVisibility}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="380" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" MinWidth="380" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Tenant" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Tenant Key (stable ID within the customer, for example primary)" />
+                        <TextBox Text="{Binding TenantKey, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Tenant Display Name" />
+                        <TextBox Text="{Binding TenantDisplayName, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Tenant Name (for example contoso.onmicrosoft.com)" />
+                        <TextBox Text="{Binding TenantName, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Tenant ID" />
+                        <TextBox Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Tenant ID" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Primary Domain" />
+                        <TextBox Text="{Binding PrimaryDomain, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Cloud Environment" />
+                        <ComboBox ItemsSource="{Binding CloudEnvironments}" SelectedItem="{Binding CloudEnvironment}" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="App Registration" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Client ID" />
+                        <TextBox Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Client ID" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Service Principal ID (when known)" />
+                        <TextBox Text="{Binding ServicePrincipalId, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Authentication Type" />
+                        <ComboBox ItemsSource="{Binding AuthenticationTypes}" SelectedItem="{Binding AuthenticationType}" />
+                        <TextBlock Style="{StaticResource Text.Error}" Visibility="{Binding IsUnsupportedAuthentication, Converter={StaticResource BoolToVisibility}}"
+                                   Text="Use Certificate (created by Connect tenant or Update permissions) or Client secret. Interactive administrator is used by the assistant only; managed identity is for future hosted use." />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Client Secret (write-only; stored with DPAPI, never shown again)" />
+                        <PasswordBox x:Name="ClientSecretBox" PasswordChanged="OnClientSecretChanged" AutomationProperties.Name="Client secret" />
+                        <TextBlock Style="{StaticResource Text.Caption}" Text="{Binding SecretState}" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Secret Expiration (yyyy-MM-dd)" />
+                        <TextBox Text="{Binding SecretExpiration, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Certificate Reference (future)" />
+                        <TextBox Text="{Binding CertificateReference, UpdateSourceTrigger=PropertyChanged}" IsEnabled="False" />
+                        <TextBlock Style="{StaticResource Text.Label}" Text="Required Capabilities" />
+                        <ItemsControl ItemsSource="{Binding Capabilities}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Capability}" IsChecked="{Binding IsSelected}" Width="220" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <WrapPanel Margin="0,8,0,0">
+                            <Button Content="Save" Command="{Binding SaveCommand}" />
+                            <Button Content="Test Connection" Command="{Binding TestConnectionCommand}" Style="{StaticResource Button.Secondary}" />
+                        </WrapPanel>
+                        <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Connection" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                        <TextBlock Text="{Binding ConnectionState}" Tag="{Binding ConnectionState}" Style="{StaticResource Text.State}" FontSize="{DynamicResource AppFont.Size.Heading3}" />
+                        <TextBlock Text="{Binding ConnectionDetail}" Visibility="{Binding ConnectionDetail, Converter={StaticResource TextToVisibility}}" Margin="0,4,0,0" />
+                        <TextBlock Text="{Binding OrganizationSummary}" Visibility="{Binding OrganizationSummary, Converter={StaticResource TextToVisibility}}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,0" />
+                        <TextBlock Style="{StaticResource Text.Caption}" Margin="0,4,0,0">
+                            <Run Text="Last Successful Connection: " /><Run Text="{Binding LastSuccessfulConnection, Converter={StaticResource UtcToLocalText}, Mode=OneWay}" />
+                            <Run Text=" | Last permission validation: " /><Run Text="{Binding LastValidation, Converter={StaticResource UtcToLocalText}, Mode=OneWay}" />
+                        </TextBlock>
+                        <ItemsControl ItemsSource="{Binding Readiness}" Margin="0,8,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                                        <TextBlock Width="24" Text="{Binding State, Converter={StaticResource CheckStateGlyph}}" Tag="{Binding State}" Style="{StaticResource Text.State}" />
+                                        <TextBlock Text="{Binding Name}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Required Permissions" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                        <TextBlock Style="{StaticResource Text.Caption}" Text="Least privilege: only permissions required by operations the application actually calls. A token never implies permissions; they are validated from the token's granted application roles." />
+                        <controls:ResizablePanel Header="Required Permissions" PanelHeight="360">
+                            <DataGrid ItemsSource="{Binding Permissions}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Capability" Binding="{Binding Capability}" Width="*" />
+                                    <DataGridTextColumn Header="Required Permission" Binding="{Binding RequiredPermission, TargetNullValue='not yet defined'}" Width="*" />
+                                    <DataGridTextColumn Header="Permission Type" Binding="{Binding PermissionType}" Width="Auto" />
+                                    <DataGridCheckBoxColumn Header="Configured" Binding="{Binding Configured}" Width="Auto" />
+                                    <DataGridTemplateColumn Header="Validated" Width="Auto">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Validated}" Tag="{Binding Validated}" Style="{StaticResource Text.State}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="2*">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="TextWrapping" Value="Wrap" />
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </controls:ResizablePanel>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Create / Configure App Registration Assistant" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                        <TextBlock Style="{StaticResource Text.Error}" Text="{Binding AssistantUnavailableReason}" Visibility="{Binding AssistantUnavailableReason, Converter={StaticResource TextToVisibility}}" />
+                        <TextBlock Style="{StaticResource Text.Caption}" Text="Each step states what it will do and runs only after you confirm it. Steps marked 'administrator' need a real Microsoft Entra administrator sign-in; nothing is granted or created silently." />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="160" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Application Name" />
+                                <TextBox Text="{Binding AssistantApplicationName, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource Text.Label}" Text="Secret Lifetime (days)" />
+                                <TextBox Text="{Binding AssistantSecretLifetimeDays, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding AssistantSteps}" IsEnabled="{Binding IsAssistantAvailable}" Margin="0,8,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Panel.Secondary}" Margin="0,0,0,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock FontWeight="{DynamicResource AppFont.Weight.Medium}">
+                                                    <Run Text="{Binding Title, Mode=OneWay}" /><Run Text="  " /><Run Text="{Binding State, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding WhatWillHappen}" Style="{StaticResource Text.Caption}" />
+                                                <TextBlock Text="{Binding Result}" Visibility="{Binding Result, Converter={StaticResource TextToVisibility}}" Style="{StaticResource Text.Secondary}" />
+                                            </StackPanel>
+                                            <Button Grid.Column="1" Content="Run" VerticalAlignment="Center" Margin="8,0,0,0" Style="{StaticResource Button.Secondary}"
+                                                    Command="{Binding DataContext.RunAssistantStepCommand, ElementName=Root}" CommandParameter="{Binding}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button Content="Sign Out Administrator" Command="{Binding SignOutAdministratorCommand}" HorizontalAlignment="Left" Style="{StaticResource Button.Secondary}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>

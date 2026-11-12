@@ -1,0 +1,79 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Insights.FleetView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls"
+             x:Name="Page">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportCommand}" VerticalAlignment="Top" />
+                    <TextBlock Text="Fleet View" Style="{StaticResource Text.Heading3}" Margin="0" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,2,0,6"
+                           Text="Every customer tenant with its latest stored assessment. Compliance and failing controls are measured against the active baseline configurations; the trend compares with the previous assessment." />
+                <WrapPanel>
+                    <StackPanel Width="280" Margin="0,0,12,6">
+                        <TextBlock Text="Search" Style="{StaticResource Text.Label}" />
+                        <controls:SearchBox Text="{Binding Search, Mode=TwoWay}" Placeholder="Search customers or tenants" />
+                    </StackPanel>
+                    <StackPanel Width="170" Margin="0,0,12,6">
+                        <TextBlock Text="Tenant" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding ConnectionFilter}" Focusable="False" />
+                        <ContentControl Content="{Binding IndustryFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel Width="190" Margin="0,0,12,6">
+                        <TextBlock Text="Schedule" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding ScheduleFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel Width="180" Margin="0,0,12,6">
+                        <TextBlock Text="Compliance" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding HealthFilter}" Focusable="False" />
+                    </StackPanel>
+                    <Button Content="Refresh" Command="{Binding LoadCommand}" Style="{StaticResource Button.Secondary}" VerticalAlignment="Bottom" />
+                </WrapPanel>
+                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+        <controls:KpiPanel ItemsSource="{Binding Kpis}" />
+        <WrapPanel>
+            <controls:ColumnChart Title="Compliance by Customer (%)" ItemsSource="{Binding ComplianceSlices}" ValueFormat="0.#" MinWidth="520" Command="{Binding ShowChartDetailCommand}" />
+            <controls:DonutChart Title="Failing Controls by Severity (click for customers)" ItemsSource="{Binding FailingSlices}" Command="{Binding ShowChartDetailCommand}" />
+        </WrapPanel>
+        <controls:StackedBarChart Title="Failing Controls by Customer and Severity" Rows="{Binding SeverityRows}" Command="{Binding ShowChartDetailCommand}" />
+        <TextBlock Text="{Binding ChartDetail}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <Border Style="{StaticResource Card}">
+            <controls:ResizablePanel Header="{Binding CountText}" PanelHeight="460">
+                <DataGrid ItemsSource="{Binding View}" SelectedItem="{Binding SelectedRow}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Customer" Binding="{Binding Customer}" Width="2*" />
+                        <DataGridTextColumn Header="Tenant" Binding="{Binding Tenant}" Width="2*" />
+                        <DataGridTextColumn Header="Industry" Binding="{Binding Industry}" Width="1.4*" />
+                        <DataGridTextColumn Header="Latest Assessment" Binding="{Binding LatestAssessment}" Width="Auto" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding LatestStatus}" Width="Auto" />
+                        <DataGridTextColumn Header="Compliance" Binding="{Binding Compliance}" Width="Auto" SortMemberPath="CompliancePercent" />
+                        <DataGridTextColumn Header="Trend" Binding="{Binding Trend}" Width="Auto" SortMemberPath="TrendValue" />
+                        <DataGridTextColumn Header="Critical" Binding="{Binding Critical}" Width="Auto" />
+                        <DataGridTextColumn Header="High" Binding="{Binding High}" Width="Auto" />
+                        <DataGridTextColumn Header="Medium" Binding="{Binding Medium}" Width="Auto" />
+                        <DataGridTextColumn Header="Low" Binding="{Binding Low}" Width="Auto" />
+                        <DataGridTextColumn Header="Schedule" Binding="{Binding Schedule}" Width="2*" />
+                        <DataGridTemplateColumn Header="Actions" Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="Open" Style="{StaticResource Button.Secondary}" Padding="8,1" Margin="0,0,4,0" ToolTip="Make this the current customer and open its overview"
+                                                Command="{Binding DataContext.OpenCustomerCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                        <Button Content="Run Assessment" Style="{StaticResource Button.Secondary}" Padding="8,1" Margin="0"
+                                                Command="{Binding DataContext.RunAssessmentCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </controls:ResizablePanel>
+        </Border>
+    </StackPanel>
+</UserControl>

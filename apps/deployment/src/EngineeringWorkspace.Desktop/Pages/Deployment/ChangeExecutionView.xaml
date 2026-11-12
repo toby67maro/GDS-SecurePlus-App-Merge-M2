@@ -1,0 +1,101 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Deployment.ChangeExecutionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Change Execution" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,2,0,6"
+                           Text="Simulate an approved change request: pre-checks, a step-by-step plan and a deployment package (Deploy.ps1 and the Microsoft Graph bodies; Conditional Access in report-only state). Apply it, then select Record As Applied to re-assess the tenant. Secure Plus does not write to the tenant." />
+                <WrapPanel>
+                    <controls:CustomerSelector Margin="0,0,12,6" />
+                    <StackPanel Width="420" Margin="0,0,12,6">
+                        <TextBlock Text="Change Request" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{Binding Requests}" SelectedItem="{Binding SelectedRequest}" AutomationProperties.Name="Change request">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock><Run Text="#" /><Run Text="{Binding Id, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding Title, Mode=OneWay}" /><Run Text=" (" /><Run Text="{Binding Status, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                </WrapPanel>
+                <WrapPanel>
+                    <Button Content="Simulate" Command="{Binding SimulateCommand}" IsEnabled="{Binding HasRequest}" />
+                    <Button Content="Apply to Tenant…" Command="{Binding ApplyToTenantCommand}" IsEnabled="{Binding HasRequest}" Style="{StaticResource Button.Danger}"
+                            ToolTip="Create the policies in the customer's tenant now (passcode and confirmation required; Conditional Access in report-only state)" />
+                    <Button Content="Save Deployment Package" Command="{Binding SavePackageCommand}" IsEnabled="{Binding HasPackage}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Record As Applied" Command="{Binding RecordAppliedCommand}" IsEnabled="{Binding HasRequest}" Style="{StaticResource Button.Secondary}"
+                            ToolTip="After the change is applied: re-assess the tenant and complete the request when every control is in place." />
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource Button.Danger}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                </WrapPanel>
+                <Expander Header="Deployment Variables" Style="{StaticResource Section.Expander}" Margin="0,8,0,0" IsExpanded="True">
+                    <StackPanel>
+                        <TextBlock Text="{Binding VariablesText}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                        <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap"
+                                   Text="Values for the policies' placeholders, saved with the customer. Group variables: pick the group from the tenant (after a quick scan), or type its name or object ID (names are looked up in the tenant)." />
+                        <DataGrid ItemsSource="{Binding Variables}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="320" Margin="0,6,0,6">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Variable" Binding="{Binding Name}" IsReadOnly="True" Width="220" />
+                                <DataGridTemplateColumn Header="Value" Width="320">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{Binding Name}"
+                                                         Visibility="{Binding HasChoices, Converter={StaticResource InverseBoolToVisibility}}" />
+                                                <ComboBox ItemsSource="{Binding Choices}" DisplayMemberPath="Display" SelectedValuePath="ObjectId"
+                                                          SelectedValue="{Binding Value, UpdateSourceTrigger=PropertyChanged}" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
+                                                          AutomationProperties.Name="{Binding Name}" ToolTip="The customer's Entra groups from the last scan; the group's object ID is saved."
+                                                          Visibility="{Binding HasChoices, Converter={StaticResource BoolToVisibility}}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Used" Binding="{Binding UsesText}" IsReadOnly="True" Width="140" />
+                                <DataGridTextColumn Header="What it is" Binding="{Binding Description}" IsReadOnly="True" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Button Content="Save Variables" Command="{Binding SaveVariablesCommand}" Style="{StaticResource Button.Secondary}" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </Expander>
+                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+            <controls:ResizablePanel Header="Steps" PanelHeight="260">
+                <DataGrid ItemsSource="{Binding Steps}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Step" Binding="{Binding Name}" Width="2*" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
+                        <DataGridTextColumn Header="Detail" Binding="{Binding Detail}" Width="4*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="TextWrapping" Value="Wrap" />
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </controls:ResizablePanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <controls:ResizablePanel Header="Executions of the Selected Change Request (select one to see its log)" PanelHeight="160">
+                    <DataGrid ItemsSource="{Binding Executions}" SelectedItem="{Binding SelectedExecution}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Started" Binding="{Binding Started}" Width="Auto" />
+                            <DataGridTextColumn Header="Mode" Binding="{Binding Mode}" Width="*" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
+                            <DataGridTextColumn Header="By" Binding="{Binding By}" Width="*" />
+                            <DataGridTextColumn Header="Re-assessment Run" Binding="{Binding Reassessment}" Width="Auto" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+                <TextBlock Text="Log" Style="{StaticResource Text.Label}" />
+                <TextBox Text="{Binding Log, Mode=OneWay}" Style="{StaticResource Text.Code}" MinHeight="80" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

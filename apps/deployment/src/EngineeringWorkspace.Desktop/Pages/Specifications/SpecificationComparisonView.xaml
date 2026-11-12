@@ -1,0 +1,98 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Specifications.SpecificationComparisonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportCommand}" VerticalAlignment="Top" />
+                    <TextBlock Text="Specification Comparison" Style="{StaticResource Text.Heading3}" Margin="0" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,2,0,6"
+                           Text="Compare the target tenant with a specification (standard, tailored or unassigned) and/or other tenants, using stored assessment results." />
+                <WrapPanel>
+                    <WrapPanel.Resources>
+                        <Style TargetType="{x:Type StackPanel}">
+                            <Setter Property="Margin" Value="0,0,12,6" />
+                        </Style>
+                    </WrapPanel.Resources>
+                    <controls:CustomerSelector Margin="0,0,12,6" ToolTip="Target tenant" />
+                    <StackPanel Width="380">
+                        <TextBlock Text="Specification" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{Binding SpecificationOptions}" SelectedItem="{Binding Specification}" DisplayMemberPath="Label" AutomationProperties.Name="Specification" />
+                    </StackPanel>
+                    <StackPanel Width="260">
+                        <TextBlock Text="Compare With Tenants" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding CompareTenants}" Focusable="False" />
+                    </StackPanel>
+                    <Button Content="Refresh" Command="{Binding RefreshCommand}" Style="{StaticResource Button.Secondary}" VerticalAlignment="Bottom" />
+                </WrapPanel>
+                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+        <controls:KpiPanel ItemsSource="{Binding Kpis}" />
+        <Grid Visibility="{Binding HasRows, Converter={StaticResource BoolToVisibility}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" MinWidth="380" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="2*" MinWidth="260" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <WrapPanel>
+                        <StackPanel Width="190" Margin="0,0,12,6">
+                            <TextBlock Text="Outcome" Style="{StaticResource Text.Label}" />
+                            <ContentControl Content="{Binding OutcomeFilter}" Focusable="False" />
+                        </StackPanel>
+                        <StackPanel Width="160" Margin="0,0,12,6">
+                            <TextBlock Text="Severity" Style="{StaticResource Text.Label}" />
+                            <ContentControl Content="{Binding SeverityFilter}" Focusable="False" />
+                        </StackPanel>
+                        <StackPanel Width="260" Margin="0,0,12,6">
+                            <TextBlock Text="Search" Style="{StaticResource Text.Label}" />
+                            <controls:SearchBox Text="{Binding Search, Mode=TwoWay}" Placeholder="Search controls" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <controls:ResizablePanel Header="{Binding CountText}" PanelHeight="460">
+                        <DataGrid ItemsSource="{Binding RowsView}" SelectedItem="{Binding SelectedRow}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="100" />
+                                <DataGridTextColumn Header="Control" Binding="{Binding Name}" Width="3*" />
+                                <DataGridTextColumn Header="Outcome" Binding="{Binding Outcome}" Width="Auto" />
+                                <DataGridTextColumn Header="Target" Binding="{Binding TargetStatus}" Width="Auto" />
+                                <DataGridTextColumn Header="Required" Binding="{Binding RequiredText}" Width="Auto" />
+                                <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="Auto" />
+                                <DataGridTextColumn Header="Compared Tenants" Binding="{Binding References}" Width="2*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </controls:ResizablePanel>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Policy Detail" Style="{StaticResource Text.Heading3}" />
+                    <TextBlock Text="Select a control to see its expected settings and each tenant's evidence." Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding Detail}" Focusable="False" Margin="0,6,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" />
+                                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0" Background="Transparent" MinHeight="0" Padding="0" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Expander Header="Microsoft Graph Body" Style="{StaticResource Section.Expander}" Visibility="{Binding GraphBody, Converter={StaticResource TextToVisibility}}">
+                        <controls:CodeView Code="{Binding GraphBody}" CodeLanguage="json" />
+                    </Expander>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </StackPanel>
+</UserControl>

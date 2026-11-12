@@ -1,0 +1,97 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Planning.TaskDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls">
+    <!-- 4.0 Task Detail: shown in the Project Plan pane and in its pop-out window (same DataContext, so edits sync both ways). -->
+    <StackPanel>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="Pop Out" Command="{Binding PopOutCommand}" Style="{StaticResource Button.Secondary}" ToolTip="Open this task in its own window"
+                        Visibility="{Binding IsPoppedOut, Converter={StaticResource InverseBoolToVisibility}}" />
+                <Button Content="Dock Back" Command="{Binding DockBackCommand}" Style="{StaticResource Button.Secondary}"
+                        Visibility="{Binding IsPoppedOut, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Heading3}" TextWrapping="Wrap" Margin="0" />
+        </DockPanel>
+        <WrapPanel Margin="0,6,0,0">
+            <StackPanel Width="320" Margin="0,0,12,6">
+                <TextBlock Text="Name" Style="{StaticResource Text.Label}" />
+                <TextBox Text="{Binding Row.Name, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Task name" />
+            </StackPanel>
+            <StackPanel Width="140" Margin="0,0,12,6">
+                <TextBlock Text="Start" Style="{StaticResource Text.Label}" />
+                <DatePicker SelectedDate="{Binding Row.StartPick}" AutomationProperties.Name="Start" />
+            </StackPanel>
+            <StackPanel Width="140" Margin="0,0,12,6">
+                <TextBlock Text="Finish" Style="{StaticResource Text.Label}" />
+                <DatePicker SelectedDate="{Binding Row.FinishPick}" AutomationProperties.Name="Finish" />
+            </StackPanel>
+            <StackPanel Width="90" Margin="0,0,12,6">
+                <TextBlock Text="Duration (days)" Style="{StaticResource Text.Label}" />
+                <TextBlock Text="{Binding Row.DurationDays}" Margin="0,6,0,0" />
+            </StackPanel>
+            <StackPanel Width="140" Margin="0,0,12,6">
+                <TextBlock Text="Status" Style="{StaticResource Text.Label}" />
+                <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Row.Status}" AutomationProperties.Name="Status" />
+            </StackPanel>
+            <StackPanel Width="200" Margin="0,0,12,6">
+                <TextBlock Text="Assigned To" Style="{StaticResource Text.Label}" />
+                <TextBox Text="{Binding Row.AssignedTo, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Assigned to" />
+            </StackPanel>
+            <StackPanel Width="200" Margin="0,0,12,6">
+                <TextBlock Text="Change Requests (#, comma-separated)" Style="{StaticResource Text.Label}" />
+                <TextBox Text="{Binding Row.ChangeRequestsText, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="Linked change requests" />
+            </StackPanel>
+            <StackPanel Width="320" Margin="0,0,12,6">
+                <TextBlock Text="Controls / Policies (IDs, comma-separated)" Style="{StaticResource Text.Label}" />
+                <TextBox Text="{Binding Row.ControlsText, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="Linked controls" />
+            </StackPanel>
+        </WrapPanel>
+        <TextBlock Text="Notes" Style="{StaticResource Text.Label}" />
+        <TextBox Text="{Binding Row.Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" AutomationProperties.Name="Notes" />
+
+        <Expander Header="Remediation" Style="{StaticResource Section.Expander}" IsExpanded="True" Margin="0,8,0,0">
+            <StackPanel>
+                <TextBlock Text="{Binding GateText}" TextWrapping="Wrap" Margin="0,4,0,6" />
+                <TextBlock Text="Link controls above to see their remediation options." Style="{StaticResource Text.Caption}"
+                           Visibility="{Binding RemediationTabs.Count, Converter={StaticResource CountToVisibility}, ConverterParameter=invert}" />
+                <TabControl ItemsSource="{Binding RemediationTabs}" SelectedItem="{Binding SelectedRemediation}" MaxHeight="360"
+                            Visibility="{Binding RemediationTabs.Count, Converter={StaticResource CountToVisibility}}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" />
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <controls:CodeView Code="{Binding Content}" CodeLanguage="{Binding Language}" />
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+                <WrapPanel Margin="0,6,0,0">
+                    <Button Content="Remediate in Tenant..." Command="{Binding RemediateCommand}" Style="{StaticResource Button.Danger}" IsEnabled="{Binding CanRemediate}"
+                            ToolTip="Creates the Microsoft Graph policies of the approved change request (report-only / unassigned) after confirmation and the passcode" />
+                </WrapPanel>
+                <TextBlock Text="Manual step done (GPO, registry, PowerShell)? Attest it: what, where and who." Style="{StaticResource Text.Label}" Margin="0,10,0,0" />
+                <TextBox Text="{Binding AttestNote, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="40" AutomationProperties.Name="Attestation note" />
+                <WrapPanel Margin="0,4,0,0">
+                    <Button Content="Attach Evidence..." Command="{Binding BrowseAttachmentCommand}" Style="{StaticResource Button.Secondary}" />
+                    <TextBlock Text="{Binding AttachmentPath}" VerticalAlignment="Center" Margin="8,0" TextTrimming="CharacterEllipsis" MaxWidth="320" />
+                    <Button Content="Mark as Done (attested)" Command="{Binding AttestCommand}" Style="{StaticResource Button.Secondary}" />
+                </WrapPanel>
+            </StackPanel>
+        </Expander>
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Margin="0,6,0,0" Visibility="{Binding Message, Converter={StaticResource TextToVisibility}}" />
+        <ProgressBar IsIndeterminate="True" Height="3" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+        <Expander Header="History" Style="{StaticResource Section.Expander}" Margin="0,8,0,0">
+            <DataGrid ItemsSource="{Binding History}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="240">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="When" Binding="{Binding When}" Width="Auto" />
+                    <DataGridTextColumn Header="Who" Binding="{Binding Who}" Width="Auto" />
+                    <DataGridTextColumn Header="What" Binding="{Binding What}" Width="Auto" />
+                    <DataGridTextColumn Header="Details" Binding="{Binding Summary}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Expander>
+    </StackPanel>
+</UserControl>

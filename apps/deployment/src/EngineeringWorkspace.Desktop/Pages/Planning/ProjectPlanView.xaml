@@ -1,0 +1,179 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Planning.ProjectPlanView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls"
+             xmlns:planning="clr-namespace:EngineeringWorkspace.Desktop.Pages.Planning"
+             x:Name="Page">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportCommand}" VerticalAlignment="Top" />
+                    <controls:CustomerSelector HorizontalAlignment="Left" />
+                </DockPanel>
+                <WrapPanel Margin="0,8,0,0">
+                    <StackPanel Width="300" Margin="0,0,12,6">
+                        <TextBlock Text="Saved Plans" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{Binding Plans}" SelectedItem="{Binding SelectedPlan}" DisplayMemberPath="Name" AutomationProperties.Name="Saved plans" />
+                    </StackPanel>
+                    <StackPanel Width="300" Margin="0,0,12,6">
+                        <TextBlock Text="Plan Name" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding PlanName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Plan name" />
+                    </StackPanel>
+                    <StackPanel Width="140" Margin="0,0,12,6">
+                        <TextBlock Text="Status" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{x:Static planning:ProjectPlanViewModel.PlanStatuses}" SelectedItem="{Binding PlanStatus}" AutomationProperties.Name="Plan status" />
+                    </StackPanel>
+                </WrapPanel>
+                <WrapPanel>
+                    <StackPanel Width="300" Margin="0,0,12,6">
+                        <TextBlock Text="Build From" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{x:Static planning:ProjectPlanViewModel.Sources}" SelectedItem="{Binding Source}" AutomationProperties.Name="Build from" />
+                    </StackPanel>
+                    <StackPanel Margin="0,0,12,6">
+                        <TextBlock Text="Start Date" Style="{StaticResource Text.Label}" />
+                        <DatePicker SelectedDate="{Binding StartDate}" Width="140" AutomationProperties.Name="Start date" />
+                    </StackPanel>
+                    <StackPanel Width="100" Margin="0,0,12,6">
+                        <TextBlock Text="Hours per Day" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding HoursPerDay, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="Hours per day" />
+                    </StackPanel>
+                    <StackPanel Width="100" Margin="0,0,12,6">
+                        <TextBlock Text="Engineers" Style="{StaticResource Text.Label}" />
+                        <TextBox Text="{Binding Engineers, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="Engineers" />
+                    </StackPanel>
+                </WrapPanel>
+                <WrapPanel>
+                    <Button Content="Build Plan" Command="{Binding BuildCommand}" />
+                    <Button Content="New Plan" Command="{Binding NewPlanCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Add Task" Command="{Binding AddTaskCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Recalculate Schedule" Command="{Binding RecalculateCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Save Plan" Command="{Binding SaveCommand}" />
+                    <Button Content="Delete Plan" Command="{Binding DeleteCommand}" Style="{StaticResource Button.Danger}" />
+                    <TextBlock Text="Unsaved changes" Foreground="{DynamicResource AppBrush.Warning}" VerticalAlignment="Center" Margin="8,0"
+                               Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibility}}" />
+                </WrapPanel>
+                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+        <controls:KpiPanel ItemsSource="{Binding Kpis}" />
+        <WrapPanel>
+            <controls:DonutChart Title="Hours by Bucket (click to break down)" ItemsSource="{Binding HoursByBucket}" ValueFormat="N1" Command="{Binding ShowDetailCommand}" />
+            <controls:HorizontalBarChart Title="Hours by Role" ItemsSource="{Binding HoursByRole}" ValueFormat="N1" LabelWidth="160" MinWidth="460" Command="{Binding ShowDetailCommand}" />
+        </WrapPanel>
+        <DockPanel Margin="0,4,0,6">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <TextBlock Text="Zoom" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <Slider Minimum="10" Maximum="160" Value="{Binding Zoom}" Width="160" VerticalAlignment="Center" AutomationProperties.Name="Timeline zoom" />
+            </StackPanel>
+            <TextBlock Text="Schedule" Style="{StaticResource Text.Heading2}" VerticalAlignment="Center" />
+        </DockPanel>
+        <controls:FlowTimeline Nodes="{Binding Timeline}" StartDate="{Binding StartDate}" HoursPerDay="{Binding HoursPerDay}" PixelsPerDay="{Binding Zoom}" Command="{Binding ShowDetailCommand}" />
+        <TextBlock Text="{Binding DetailText}" TextWrapping="Wrap" Margin="0,6,0,6" />
+        <TextBlock Text="Tasks" Style="{StaticResource Text.Heading2}" Margin="0,8,0,4" />
+        <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,0,0,4"
+                   Text="Click a task in the schedule or the list to open its details. Edit Start or Finish with the date picker: dependent tasks move with it. Predecessors are outline numbers separated by commas. The arrows change the display order only (never dates or dependencies). The check mark completes a task; a Staged task (created in report-only / unassigned) completes once the change is enforced." />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" MinWidth="520" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="2*" MinWidth="320" />
+            </Grid.ColumnDefinitions>
+            <DataGrid ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="640"
+                      ClipboardCopyMode="IncludeHeader" CanUserSortColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="" Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.ToggleCompleteCommand, ElementName=Page}" CommandParameter="{Binding}" ToolTip="{Binding CompletionToolTip}"
+                                        AutomationProperties.Name="{Binding CompletionToolTip}" Padding="4,0" Margin="0">
+                                    <Button.Style>
+                                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource Button.Icon}">
+                                            <Setter Property="Content" Value="&#xE73E;" />
+                                            <Setter Property="Foreground" Value="#FF8A8886" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                    <Setter Property="Foreground" Value="#FF107C10" />
+                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsStaged}" Value="True">
+                                                    <Setter Property="Foreground" Value="#FFC19C00" />
+                                                    <Setter Property="Content" Value="&#xE916;" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="#" Binding="{Binding Outline}" IsReadOnly="True" Width="44" />
+                    <DataGridTextColumn Header="Task" Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Width="3*" />
+                    <DataGridTextColumn Header="Bucket" Binding="{Binding Bucket, UpdateSourceTrigger=LostFocus}" Width="1.2*" />
+                    <DataGridTextColumn Header="Role" Binding="{Binding Role, UpdateSourceTrigger=LostFocus}" Width="*" />
+                    <DataGridTextColumn Header="Hours" Binding="{Binding Hours, UpdateSourceTrigger=LostFocus}" Width="56" />
+                    <DataGridTextColumn Header="Predecessors" Binding="{Binding Predecessors, UpdateSourceTrigger=LostFocus}" Width="*" />
+                    <DataGridTemplateColumn Header="Start" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <DatePicker SelectedDate="{Binding StartPick, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" AutomationProperties.Name="Start" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Finish" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <DatePicker SelectedDate="{Binding FinishPick, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" AutomationProperties.Name="Finish" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Status" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox ItemsSource="{x:Static planning:ProjectPlanViewModel.Statuses}" SelectedItem="{Binding Status, UpdateSourceTrigger=PropertyChanged}" Margin="0"
+                                          AutomationProperties.Name="Status" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="%" Binding="{Binding PercentComplete, UpdateSourceTrigger=LostFocus}" Width="44" />
+                    <DataGridTemplateColumn Header="" Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="&#xE70E;" Style="{StaticResource Button.Icon}" ToolTip="Move Up (display order only)" AutomationProperties.Name="Move up"
+                                            Command="{Binding DataContext.MoveUpCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                    <Button Content="&#xE70D;" Style="{StaticResource Button.Icon}" ToolTip="Move Down (display order only)" AutomationProperties.Name="Move down"
+                                            Command="{Binding DataContext.MoveDownCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                    <Menu Background="Transparent" VerticalAlignment="Center">
+                                        <MenuItem Header="&#xE710;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" ToolTip="Insert Task" AutomationProperties.Name="Insert task" Padding="6,2">
+                                            <MenuItem Header="Insert Task Above" FontFamily="Segoe UI"
+                                                      Command="{Binding DataContext.InsertAboveCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                            <MenuItem Header="Insert Task Below" FontFamily="Segoe UI"
+                                                      Command="{Binding DataContext.InsertBelowCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                        </MenuItem>
+                                    </Menu>
+                                    <Button Content="&#xE74D;" Style="{StaticResource Button.Icon}" ToolTip="Remove Task" AutomationProperties.Name="Remove task"
+                                            Command="{Binding DataContext.RemoveTaskCommand, ElementName=Page}" CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="0" VerticalAlignment="Top">
+                <Grid>
+                    <TextBlock Text="Select a task to see its details." Style="{StaticResource Text.Caption}"
+                               Visibility="{Binding HasDetail, Converter={StaticResource InverseBoolToVisibility}}" />
+                    <ContentControl Content="{Binding Detail}" Focusable="False">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate>
+                                <planning:TaskDetailView />
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                </Grid>
+            </Border>
+        </Grid>
+    </StackPanel>
+</UserControl>

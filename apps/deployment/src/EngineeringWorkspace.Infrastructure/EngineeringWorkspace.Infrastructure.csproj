@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EngineeringWorkspace.Application\EngineeringWorkspace.Application.csproj" />
+    <ProjectReference Include="..\EngineeringWorkspace.Domain\EngineeringWorkspace.Domain.csproj" />
+    <ProjectReference Include="..\EngineeringWorkspace.Contracts\EngineeringWorkspace.Contracts.csproj" />
+    <ProjectReference Include="..\EngineeringWorkspace.Configuration\EngineeringWorkspace.Configuration.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.Identity.Client" />
+    <PackageReference Include="Microsoft.Graph" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+  </ItemGroup>
+
+  <!-- Versioned schema migrations generated from the EaaS v3 data dictionary (see build/scripts/eaas-schema). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Persistence\Schema\SqlServer\*.sql" LogicalName="EngineeringWorkspace.Schema.SqlServer.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Persistence\Schema\Sqlite\*.sql" LogicalName="EngineeringWorkspace.Schema.Sqlite.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Persistence\Schema\eaas-v3-schema-manifest.json" LogicalName="EngineeringWorkspace.Schema.eaas-v3-schema-manifest.json" />
+    <!-- Control catalog generated from the GDS Documents repository (build/scripts/catalog/generate_catalog.py). -->
+    <EmbeddedResource Include="Assessments\PowerShell\ReadOnlyCollector.ps1" LogicalName="EngineeringWorkspace.Assessments.ReadOnlyCollector.ps1" />
+    <EmbeddedResource Include="Catalog\catalog.json.gz" LogicalName="EngineeringWorkspace.Catalog.catalog.json.gz" />
+    <EmbeddedResource Include="KnowledgeBase\knowledge-base.json.gz" LogicalName="EngineeringWorkspace.KnowledgeBase.knowledge-base.json.gz" />
+    <EmbeddedResource Include="KnowledgeBase\baselines.json.gz" LogicalName="EngineeringWorkspace.KnowledgeBase.baselines.json.gz" />
+    <EmbeddedResource Include="KnowledgeBase\knowledge-base-phase3.json.gz" LogicalName="EngineeringWorkspace.KnowledgeBase.knowledge-base-phase3.json.gz" />
+  </ItemGroup>
+
+</Project>

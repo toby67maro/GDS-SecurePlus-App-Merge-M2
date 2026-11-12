@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EngineeringWorkspace.Application/EngineeringWorkspace.Application.csproj" />
+    <Project Path="src/EngineeringWorkspace.Configuration/EngineeringWorkspace.Configuration.csproj" />
+    <Project Path="src/EngineeringWorkspace.Contracts/EngineeringWorkspace.Contracts.csproj" />
+    <Project Path="src/EngineeringWorkspace.Desktop/EngineeringWorkspace.Desktop.csproj" />
+    <Project Path="src/EngineeringWorkspace.Domain/EngineeringWorkspace.Domain.csproj" />
+    <Project Path="src/EngineeringWorkspace.Infrastructure/EngineeringWorkspace.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EngineeringWorkspace.Application.Tests/EngineeringWorkspace.Application.Tests.csproj" />
+    <Project Path="tests/EngineeringWorkspace.Architecture.Tests/EngineeringWorkspace.Architecture.Tests.csproj" />
+    <Project Path="tests/EngineeringWorkspace.Configuration.Tests/EngineeringWorkspace.Configuration.Tests.csproj" />
+    <Project Path="tests/EngineeringWorkspace.Domain.Tests/EngineeringWorkspace.Domain.Tests.csproj" />
+    <Project Path="tests/EngineeringWorkspace.Infrastructure.Tests/EngineeringWorkspace.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

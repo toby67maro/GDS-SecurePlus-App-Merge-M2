@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "appearance": {
+    "theme": {
+      "mode": "System",
+      "allowUserSelection": true
+    },
+    "typography": {
+      "baseFontSize": 13
+    },
+    "dark": {
+      "colors": {
+        "navigationSelectedBackground": "#156082"
+      }
+    }
+  }
+}

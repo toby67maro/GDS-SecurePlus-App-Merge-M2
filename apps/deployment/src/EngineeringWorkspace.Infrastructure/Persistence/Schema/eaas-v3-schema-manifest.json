@@ -1,0 +1,3083 @@
+{
+  "source": "schema/eaas-v3/GDS_ComplianceIQ_Data_Dictionary_v3.csv",
+  "sourceSha256": "4694b1dd295794a7ee34f694db20708ae2c6f6eac88f5d8084a2da2db16411d5",
+  "tableCount": 204,
+  "columnCount": 1639,
+  "foreignKeyConflicts": [
+    {
+      "table": "cust.QuestionnaireInstance",
+      "column": "QuestionSetId",
+      "target": "eux.QuestionSet",
+      "reason": "column type smallint differs from referenced key type tinyint"
+    }
+  ],
+  "tables": [
+    {
+      "schema": "ref",
+      "name": "CodeSet",
+      "temporal": false,
+      "columns": [
+        "CodeSetId",
+        "Code",
+        "Name",
+        "Description"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "CodeValue",
+      "temporal": false,
+      "columns": [
+        "CodeValueId",
+        "CodeSetId",
+        "Code",
+        "Label",
+        "Description",
+        "SortOrder",
+        "IsActive"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "RatingScale",
+      "temporal": false,
+      "columns": [
+        "RatingScaleId",
+        "Code",
+        "Name",
+        "MinValue",
+        "MaxValue",
+        "HigherIsWorse",
+        "Description"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "RatingScaleValue",
+      "temporal": false,
+      "columns": [
+        "RatingScaleValueId",
+        "RatingScaleId",
+        "NumericValue",
+        "Label",
+        "BinLow",
+        "BinHigh",
+        "ColorHex",
+        "Description"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "ImplementationStatus",
+      "temporal": false,
+      "columns": [
+        "ImplementationStatusId",
+        "Code",
+        "Label",
+        "CreditFactor",
+        "CountsAsApplicable",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "SourceStatusLabel",
+      "temporal": false,
+      "columns": [
+        "SourceStatusLabelId",
+        "FrameworkId",
+        "BaselineSourceId",
+        "SourceLabel",
+        "ImplementationStatusId"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "MappingSource",
+      "temporal": false,
+      "columns": [
+        "MappingSourceId",
+        "Code",
+        "Name",
+        "Publisher",
+        "AuthorityLevelCode",
+        "DefaultConfidence",
+        "SourceDocumentId",
+        "Url"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "RelationshipType",
+      "temporal": false,
+      "columns": [
+        "RelationshipTypeId",
+        "Code",
+        "Name",
+        "CountsAsSatisfies",
+        "Description"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "EntityType",
+      "temporal": false,
+      "columns": [
+        "EntityTypeId",
+        "Code",
+        "Name",
+        "TableName"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "PropertyDefinition",
+      "temporal": false,
+      "columns": [
+        "PropertyDefinitionId",
+        "Code",
+        "Name",
+        "DataTypeCode",
+        "AppliesToEntityTypeId",
+        "FrameworkId",
+        "Description"
+      ]
+    },
+    {
+      "schema": "ref",
+      "name": "MaturityLevel",
+      "temporal": false,
+      "columns": [
+        "MaturityLevelId",
+        "Code",
+        "Name",
+        "Description"
+      ]
+    },
+    {
+      "schema": "src",
+      "name": "License",
+      "temporal": false,
+      "columns": [
+        "LicenseId",
+        "Code",
+        "Name",
+        "Url",
+        "AllowsCommercialUse",
+        "AllowsRedistribution",
+        "AllowsDerivatives",
+        "AllowsCustomerFacingText",
+        "AttributionText",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "src",
+      "name": "SourceDocument",
+      "temporal": false,
+      "columns": [
+        "SourceDocumentId",
+        "Code",
+        "Title",
+        "Publisher",
+        "DocumentTypeCode",
+        "Version",
+        "PublishedDate",
+        "RetrievedAt",
+        "Location",
+        "FileName",
+        "FileHashSha256",
+        "LicenseId",
+        "IsAuthoritative",
+        "IsGdsInternal",
+        "IsCurrent",
+        "SupersededByDocumentId",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "src",
+      "name": "SourceObject",
+      "temporal": false,
+      "columns": [
+        "SourceObjectId",
+        "SourceDocumentId",
+        "ObjectName",
+        "StagingTable",
+        "TargetTables",
+        "RowCount",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "src",
+      "name": "LoadBatch",
+      "temporal": false,
+      "columns": [
+        "LoadBatchId",
+        "SourceDocumentId",
+        "StartedAt",
+        "CompletedAt",
+        "LoadedBy",
+        "RowsRead",
+        "RowsLoaded",
+        "RowsRejected",
+        "StatusCode",
+        "ScriptVersion"
+      ]
+    },
+    {
+      "schema": "src",
+      "name": "LoadIssue",
+      "temporal": false,
+      "columns": [
+        "LoadIssueId",
+        "LoadBatchId",
+        "SourceObjectId",
+        "SourceRowRef",
+        "SeverityCode",
+        "IssueCode",
+        "Message"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "Framework",
+      "temporal": false,
+      "columns": [
+        "FrameworkId",
+        "Code",
+        "Name",
+        "ShortName",
+        "Publisher",
+        "FrameworkTypeCode",
+        "GeographyCode",
+        "Jurisdiction",
+        "IndustryScope",
+        "IsHub",
+        "ScfFocalDocumentId",
+        "ScfColumnHeader",
+        "Url",
+        "StrmUrl",
+        "Description"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "FrameworkVersion",
+      "temporal": false,
+      "columns": [
+        "FrameworkVersionId",
+        "FrameworkId",
+        "VersionLabel",
+        "ReleaseDate",
+        "EffectiveDate",
+        "LifecycleStatusCode",
+        "SupersedesVersionId",
+        "SourceDocumentId",
+        "HasFullText",
+        "RequirementCount",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "Requirement",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "FrameworkVersionId",
+        "ParentRequirementId",
+        "RequirementCode",
+        "MatchKey",
+        "SortKey",
+        "HierarchyLevelCode",
+        "Title",
+        "Statement",
+        "Discussion",
+        "RequirementTypeCode",
+        "RegulatoryStatusCode",
+        "IsAssessable",
+        "IsStub",
+        "IsNewInVersion",
+        "IsWithdrawn",
+        "SourceDocumentId",
+        "SourceRowRef"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "RequirementProperty",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "PropertyDefinitionId",
+        "ValueText",
+        "ValueNumber",
+        "ValueBit"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "Profile",
+      "temporal": false,
+      "columns": [
+        "ProfileId",
+        "FrameworkVersionId",
+        "Code",
+        "Name",
+        "ProfileTypeCode",
+        "ParentProfileId",
+        "IsCumulative",
+        "Description"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "ProfileRequirement",
+      "temporal": false,
+      "columns": [
+        "ProfileId",
+        "RequirementId",
+        "IsInherited"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "RequirementMap",
+      "temporal": false,
+      "columns": [
+        "RequirementMapId",
+        "FromRequirementId",
+        "ToRequirementId",
+        "RelationshipTypeId",
+        "MappingSourceId",
+        "Strength",
+        "ConfidenceCode",
+        "Rationale",
+        "IsDerived",
+        "DerivedViaRequirementId"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "ScfDomain",
+      "temporal": false,
+      "columns": [
+        "ScfDomainId",
+        "Code",
+        "Name",
+        "Principle",
+        "PrincipleIntent",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "ScfControl",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "ScfDomainId",
+        "ControlWeight",
+        "IsMaterialControl",
+        "ValidationCadence",
+        "ErlCodes",
+        "PPTDF_People",
+        "PPTDF_Process",
+        "PPTDF_Technology",
+        "PPTDF_Data",
+        "PPTDF_Facility",
+        "CsfFunctionCode",
+        "ScrmTier1",
+        "ScrmTier2",
+        "ScrmTier3",
+        "ControlQuestion",
+        "RiskIfNotImplemented",
+        "SolutionsMicroSmall",
+        "SolutionsSmall",
+        "SolutionsMedium",
+        "SolutionsLarge",
+        "SolutionsEnterprise",
+        "IsMinimumCompliance",
+        "IsDiscretionary",
+        "IsOrphaned",
+        "LegacyScfCode",
+        "Errata"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "ScfControlLineage",
+      "temporal": false,
+      "columns": [
+        "ScfControlLineageId",
+        "RequirementId",
+        "LegacyScfCode",
+        "ChangeTypeCode",
+        "MergedIntoRequirementId",
+        "Note"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "CompensatingControl",
+      "temporal": false,
+      "columns": [
+        "CompensatingControlId",
+        "RequirementId",
+        "Sequence",
+        "CompensatingRequirementId",
+        "Name",
+        "Description",
+        "Justification"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "MaturityCriterion",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "MaturityLevelId",
+        "CriterionText"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "AssessmentObjective",
+      "temporal": false,
+      "columns": [
+        "AssessmentObjectiveId",
+        "RequirementId",
+        "ObjectiveCode",
+        "ParentObjectiveId",
+        "ObjectiveText",
+        "DefinedParameter",
+        "PPTDF",
+        "AssessmentRigor",
+        "Origin",
+        "ExamineText",
+        "InterviewText",
+        "TestText",
+        "ExpectedResult",
+        "SortKey"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "AssessmentObjectiveMap",
+      "temporal": false,
+      "columns": [
+        "FromAssessmentObjectiveId",
+        "ToAssessmentObjectiveId",
+        "MappingSourceId"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "EvidenceArtifact",
+      "temporal": false,
+      "columns": [
+        "EvidenceArtifactId",
+        "ErlCode",
+        "AreaOfFocus",
+        "ArtifactName",
+        "ArtifactDescription",
+        "RelevantCmmcL2"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "RequirementEvidence",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "EvidenceArtifactId",
+        "MappingSourceId"
+      ]
+    },
+    {
+      "schema": "fw",
+      "name": "ScopeCategory",
+      "temporal": false,
+      "columns": [
+        "ScopeCategoryId",
+        "FrameworkVersionId",
+        "Code",
+        "Name",
+        "SuggestedLabel",
+        "Description"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "Risk",
+      "temporal": false,
+      "columns": [
+        "RiskId",
+        "RiskCode",
+        "RiskGrouping",
+        "Name",
+        "Description",
+        "CsfFunctionCode",
+        "MaterialityPretaxIncome",
+        "MaterialityTotalAssets",
+        "MaterialityTotalEquity",
+        "MaterialityTotalRevenue"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "Threat",
+      "temporal": false,
+      "columns": [
+        "ThreatId",
+        "ThreatCode",
+        "ThreatGrouping",
+        "Name",
+        "Description",
+        "MaterialityPretaxIncome",
+        "MaterialityTotalAssets",
+        "MaterialityTotalEquity",
+        "MaterialityTotalRevenue"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "ControlRisk",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "RiskId",
+        "LikelihoodScaleValueId",
+        "SourceLabel"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "ControlThreat",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "ThreatId",
+        "LikelihoodScaleValueId",
+        "SourceLabel"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "AttackTactic",
+      "temporal": false,
+      "columns": [
+        "TacticId",
+        "TacticCode",
+        "Name",
+        "ShortDescription",
+        "Description",
+        "KillChainOrder",
+        "Url"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "AttackTechnique",
+      "temporal": false,
+      "columns": [
+        "TechniqueId",
+        "TechniqueCode",
+        "ParentTechniqueId",
+        "Name",
+        "IsSubTechnique",
+        "Description",
+        "DetectionStrategies",
+        "Platforms",
+        "AttackVersion",
+        "IsDeprecated",
+        "Url"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "TechniqueTactic",
+      "temporal": false,
+      "columns": [
+        "TechniqueId",
+        "TacticId"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "AttackMitigation",
+      "temporal": false,
+      "columns": [
+        "MitigationId",
+        "MitigationCode",
+        "Name",
+        "Description",
+        "Url"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "TechniqueMitigation",
+      "temporal": false,
+      "columns": [
+        "TechniqueId",
+        "MitigationId",
+        "HowItApplies"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "RequirementTechnique",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "TechniqueId",
+        "MappingSourceId",
+        "MappingCategoryCode",
+        "MappingValueCode",
+        "AttackVersion"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "CapabilityTechnique",
+      "temporal": false,
+      "columns": [
+        "CapabilityId",
+        "TechniqueId",
+        "MappingSourceId",
+        "MappingCategoryCode",
+        "MappingValueCode"
+      ]
+    },
+    {
+      "schema": "threat",
+      "name": "RecommendationTechnique",
+      "temporal": false,
+      "columns": [
+        "RecommendationId",
+        "TechniqueId",
+        "MappingSourceId",
+        "MitigationId"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "Platform",
+      "temporal": false,
+      "columns": [
+        "PlatformId",
+        "Code",
+        "Name",
+        "PlatformFamilyCode",
+        "Vendor",
+        "VersionLabel",
+        "ParentPlatformId",
+        "IsActive"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "BaselineSource",
+      "temporal": false,
+      "columns": [
+        "BaselineSourceId",
+        "Code",
+        "Name",
+        "Publisher",
+        "IsGdsInternal",
+        "LicenseId",
+        "Url"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "Baseline",
+      "temporal": false,
+      "columns": [
+        "BaselineId",
+        "BaselineSourceId",
+        "PlatformId",
+        "Code",
+        "Name",
+        "Version",
+        "ReleaseDate",
+        "DeliveryMechanismCode",
+        "TargetCloudCode",
+        "IsCurrent",
+        "IsArchived",
+        "SupersededByBaselineId",
+        "SourceDocumentId",
+        "RecommendationCount",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "BaselineProfile",
+      "temporal": false,
+      "columns": [
+        "BaselineProfileId",
+        "BaselineId",
+        "Code",
+        "Name",
+        "ProfileLevel",
+        "QualifierCode",
+        "IsAddOn",
+        "LicenseSkuId",
+        "Description"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "BaselineSection",
+      "temporal": false,
+      "columns": [
+        "BaselineSectionId",
+        "BaselineId",
+        "ParentSectionId",
+        "SectionNumber",
+        "Title",
+        "Description",
+        "SortKey"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "GpoPackage",
+      "temporal": false,
+      "columns": [
+        "GpoPackageId",
+        "BaselineId",
+        "BackupId",
+        "GpoGuid",
+        "DisplayName",
+        "ScopeCode",
+        "GpReportFile"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "Recommendation",
+      "temporal": false,
+      "columns": [
+        "RecommendationId",
+        "BaselineId",
+        "BaselineSectionId",
+        "GpoPackageId",
+        "RecNumber",
+        "Title",
+        "AssessmentTypeCode",
+        "CategoryText",
+        "LevelText",
+        "Summary",
+        "RationaleSummary",
+        "ImpactSummary",
+        "DefaultValue",
+        "RecommendedValue",
+        "GridId",
+        "ExternalId",
+        "MinimumOsVersion",
+        "HowToVerifyCode",
+        "IsDeprecated",
+        "SourceDocumentId",
+        "PageNumber",
+        "SourceRowRef"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "RecommendationSourceText",
+      "temporal": false,
+      "columns": [
+        "RecommendationId",
+        "DescriptionText",
+        "RationaleText",
+        "ImpactText",
+        "AuditText",
+        "RemediationText",
+        "AdditionalInfoText",
+        "WarningText",
+        "ReferencesText",
+        "LicenseId",
+        "IsInternalOnly"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "RecommendationProfile",
+      "temporal": false,
+      "columns": [
+        "RecommendationId",
+        "BaselineProfileId",
+        "RecommendedValue"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "RecommendationProcedure",
+      "temporal": false,
+      "columns": [
+        "RecommendationProcedureId",
+        "RecommendationId",
+        "ProcedureTypeCode",
+        "MethodCode",
+        "Sequence",
+        "StepText",
+        "ScriptText",
+        "IsReadOnly",
+        "Placeholders",
+        "SourceDocumentId"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "RecommendationRequirement",
+      "temporal": false,
+      "columns": [
+        "RecommendationId",
+        "RequirementId",
+        "MappingSourceId",
+        "RelationshipTypeId",
+        "ControlsVersionLabel",
+        "IsExplicitlyNotMapped"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "RecommendationRelation",
+      "temporal": false,
+      "columns": [
+        "FromRecommendationId",
+        "ToRecommendationId",
+        "RelationTypeCode",
+        "MappingSourceId",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "StigReference",
+      "temporal": false,
+      "columns": [
+        "RecommendationId",
+        "StigId",
+        "VulId",
+        "RuleId",
+        "SeverityCat",
+        "StigTitle",
+        "StigVersion",
+        "StigRelease",
+        "BenchmarkDate"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "Setting",
+      "temporal": false,
+      "columns": [
+        "SettingId",
+        "SettingKey",
+        "SettingTypeCode",
+        "PlatformId",
+        "ProductId",
+        "CapabilityId",
+        "Name",
+        "FriendlyName",
+        "CategoryPath",
+        "ScopeCode",
+        "DataType",
+        "AllowedValues",
+        "DefaultValue",
+        "IntuneSettingDefinitionId",
+        "OmaUri",
+        "GpoPath",
+        "RegistryHive",
+        "RegistryKey",
+        "RegistryValueName",
+        "RegistryValueType",
+        "GraphResource",
+        "GraphProperty",
+        "PowerShellCmdlet",
+        "PortalPath",
+        "CspVersion",
+        "MinOsVersion",
+        "MaxOsVersion",
+        "Editions",
+        "IsAdmxBacked",
+        "IsDeprecated",
+        "SourceDocumentId"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "SettingAlias",
+      "temporal": false,
+      "columns": [
+        "SettingAliasId",
+        "SettingId",
+        "AliasTypeCode",
+        "AliasValue",
+        "SourceDocumentId"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "RecommendationSetting",
+      "temporal": false,
+      "columns": [
+        "RecommendationId",
+        "SettingId",
+        "ExpectedValue",
+        "OperatorCode",
+        "ValueUnit",
+        "IsPrimary"
+      ]
+    },
+    {
+      "schema": "cfg",
+      "name": "BaselineChange",
+      "temporal": false,
+      "columns": [
+        "BaselineChangeId",
+        "FromBaselineId",
+        "ToBaselineId",
+        "SettingId",
+        "ChangeTypeCode",
+        "OldValue",
+        "NewValue",
+        "OldRegistryInfo",
+        "NewRegistryInfo",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "Product",
+      "temporal": false,
+      "columns": [
+        "ProductId",
+        "Code",
+        "Name",
+        "Vendor",
+        "ProductFamilyCode",
+        "AdminCenterName",
+        "AdminPortalUrl",
+        "Description"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "Capability",
+      "temporal": false,
+      "columns": [
+        "CapabilityId",
+        "ProductId",
+        "Code",
+        "Name",
+        "CategoryText",
+        "Description",
+        "DocUrl",
+        "PortalPath"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "LicenseSku",
+      "temporal": false,
+      "columns": [
+        "LicenseSkuId",
+        "SkuPartNumber",
+        "Name",
+        "Vendor",
+        "LicenseFamilyCode",
+        "CloudEnvironmentCode",
+        "IsAddOn",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "SkuCapability",
+      "temporal": false,
+      "columns": [
+        "LicenseSkuId",
+        "CapabilityId",
+        "ServicePlanName"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "RequirementCapability",
+      "temporal": false,
+      "columns": [
+        "RequirementId",
+        "CapabilityId",
+        "MappingSourceId",
+        "ToolingText"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "ConfigurationChange",
+      "temporal": false,
+      "columns": [
+        "ConfigurationChangeId",
+        "Code",
+        "Name",
+        "Description",
+        "ProductId",
+        "CapabilityId",
+        "ChangeTypeCode",
+        "DeploymentMethodCode",
+        "DefaultImplementationModeCode",
+        "MinimumLicenseSkuId",
+        "RequiresUserCommunication",
+        "RequiresReboot",
+        "RequiresDowntime",
+        "IsReversible",
+        "OwnerRoleCode",
+        "StatusCode"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "ConfigurationChangeSetting",
+      "temporal": false,
+      "columns": [
+        "ConfigurationChangeId",
+        "SettingId",
+        "TargetValue",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "ConfigurationChangeRecommendation",
+      "temporal": false,
+      "columns": [
+        "ConfigurationChangeId",
+        "RecommendationId",
+        "CoverageCode"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "ConfigurationChangeRequirement",
+      "temporal": false,
+      "columns": [
+        "ConfigurationChangeId",
+        "RequirementId",
+        "MappingSourceId",
+        "RelationshipTypeId",
+        "IsDerived",
+        "DerivationPath"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "ConfigurationChangeDependency",
+      "temporal": false,
+      "columns": [
+        "ConfigurationChangeId",
+        "DependsOnConfigurationChangeId",
+        "DependencyTypeCode"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "Guidance",
+      "temporal": true,
+      "columns": [
+        "GuidanceId",
+        "RequirementId",
+        "RecommendationId",
+        "SettingId",
+        "ConfigurationChangeId",
+        "StandardItemId",
+        "BusinessImpactText",
+        "EuxImpactText",
+        "Prerequisites",
+        "ImplementationSteps",
+        "ValidationSteps",
+        "RollbackSteps",
+        "PilotApproach",
+        "CommunicationNotes",
+        "SupportImpact",
+        "LicenseNotes",
+        "IsCustomerFacing",
+        "ReviewStatusCode",
+        "AuthoredBy",
+        "ReviewedBy",
+        "ReviewedOn",
+        "Version"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "KnownIssue",
+      "temporal": false,
+      "columns": [
+        "KnownIssueId",
+        "Title",
+        "Description",
+        "Symptoms",
+        "Workaround",
+        "SeverityScaleValueId",
+        "PlatformId",
+        "ProductId",
+        "SourceUrl",
+        "SourceDocumentId"
+      ]
+    },
+    {
+      "schema": "kb",
+      "name": "KnownIssueLink",
+      "temporal": false,
+      "columns": [
+        "KnownIssueLinkId",
+        "KnownIssueId",
+        "RecommendationId",
+        "SettingId",
+        "ConfigurationChangeId",
+        "RequirementId",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "gds",
+      "name": "Standard",
+      "temporal": false,
+      "columns": [
+        "StandardId",
+        "Code",
+        "Name",
+        "Version",
+        "StatusCode",
+        "ServiceTierId",
+        "BaselineId",
+        "OwnerName",
+        "SourceDocumentId",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "gds",
+      "name": "StandardItem",
+      "temporal": false,
+      "columns": [
+        "StandardItemId",
+        "StandardId",
+        "ItemCode",
+        "Sequence",
+        "PhaseGroupRef",
+        "PhaseId",
+        "WorkstreamId",
+        "TaskNum",
+        "TaskName",
+        "GroupAbbrev",
+        "GroupItemNumber",
+        "ControlCode",
+        "SettingCategory",
+        "SettingName",
+        "TargetConfiguration",
+        "ConfigurationPath",
+        "DeploymentMethodCode",
+        "ValidationMethod",
+        "EvidenceRequired",
+        "AppliesWhen",
+        "LicenseRequirementText",
+        "LicenseSkuId",
+        "ImplementationModeCode",
+        "PilotGroup",
+        "Exclusions",
+        "ExceptionCriteria",
+        "RollbackMethod",
+        "ReviewCadence",
+        "SupportOwnerRole",
+        "WbsRef",
+        "DeploymentOrder",
+        "IsOptional",
+        "EngineeringNotes",
+        "RecommendationId",
+        "ConfigurationChangeId"
+      ]
+    },
+    {
+      "schema": "gds",
+      "name": "StandardItemTier",
+      "temporal": false,
+      "columns": [
+        "StandardItemId",
+        "ServiceTierId",
+        "InclusionCode"
+      ]
+    },
+    {
+      "schema": "gds",
+      "name": "StandardItemRequirement",
+      "temporal": false,
+      "columns": [
+        "StandardItemId",
+        "RequirementId",
+        "MappingSourceId",
+        "RelationshipTypeId"
+      ]
+    },
+    {
+      "schema": "score",
+      "name": "Attribute",
+      "temporal": false,
+      "columns": [
+        "AttributeId",
+        "Code",
+        "Name",
+        "RatingScaleId",
+        "DataTypeCode",
+        "UnitCode",
+        "IsCustomerSpecific",
+        "Description"
+      ]
+    },
+    {
+      "schema": "score",
+      "name": "EnrichmentValue",
+      "temporal": true,
+      "columns": [
+        "EnrichmentValueId",
+        "AttributeId",
+        "RequirementId",
+        "RecommendationId",
+        "SettingId",
+        "ConfigurationChangeId",
+        "StandardItemId",
+        "ArtifactId",
+        "WbsTaskId",
+        "CapabilityId",
+        "RawValue",
+        "NumericValue",
+        "NormalizedValue",
+        "RatingScaleValueId",
+        "MappingSourceId",
+        "SourceDocumentId",
+        "MethodCode",
+        "ConfidenceCode",
+        "DerivationRuleId",
+        "DerivationNote",
+        "IsCurrent",
+        "EffectiveFrom",
+        "ReviewedBy",
+        "ReviewedOn"
+      ]
+    },
+    {
+      "schema": "score",
+      "name": "DerivationRule",
+      "temporal": false,
+      "columns": [
+        "DerivationRuleId",
+        "Code",
+        "AttributeId",
+        "Priority",
+        "AppliesToEntityTypeId",
+        "RuleText",
+        "RuleSql",
+        "IsActive"
+      ]
+    },
+    {
+      "schema": "score",
+      "name": "SourcePrecedence",
+      "temporal": false,
+      "columns": [
+        "AttributeId",
+        "MappingSourceId",
+        "Precedence"
+      ]
+    },
+    {
+      "schema": "score",
+      "name": "ScoringModel",
+      "temporal": false,
+      "columns": [
+        "ScoringModelId",
+        "Code",
+        "Name",
+        "Version",
+        "FormulaText",
+        "IsDefault",
+        "Description"
+      ]
+    },
+    {
+      "schema": "score",
+      "name": "ScoringWeight",
+      "temporal": false,
+      "columns": [
+        "ScoringModelId",
+        "AttributeId",
+        "Weight",
+        "TransformCode"
+      ]
+    },
+    {
+      "schema": "score",
+      "name": "ItemScore",
+      "temporal": false,
+      "columns": [
+        "ItemScoreId",
+        "ScoringModelId",
+        "RequirementId",
+        "RecommendationId",
+        "ConfigurationChangeId",
+        "StandardItemId",
+        "ArtifactId",
+        "RiskWeight",
+        "Likelihood",
+        "BusinessImpact",
+        "EuxImpact",
+        "Difficulty",
+        "EffortHoursMin",
+        "EffortHoursMax",
+        "CostBand",
+        "RiskScore",
+        "PriorityRank",
+        "LowestConfidenceCode",
+        "CalculatedAt"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "ExperienceArea",
+      "temporal": false,
+      "columns": [
+        "ExperienceAreaId",
+        "Code",
+        "Name",
+        "Description",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "Persona",
+      "temporal": false,
+      "columns": [
+        "PersonaId",
+        "Code",
+        "Name",
+        "Description",
+        "IsPrivileged",
+        "IsExternal"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "Expectation",
+      "temporal": false,
+      "columns": [
+        "ExpectationId",
+        "Code",
+        "ExperienceAreaId",
+        "Statement",
+        "Description",
+        "DefaultImportance"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "QuestionSet",
+      "temporal": false,
+      "columns": [
+        "QuestionSetId",
+        "Code",
+        "Name",
+        "PurposeCode",
+        "Version",
+        "SourceDocumentId"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "Question",
+      "temporal": false,
+      "columns": [
+        "QuestionId",
+        "QuestionSetId",
+        "Code",
+        "ExperienceAreaId",
+        "PhaseId",
+        "CategoryText",
+        "Topic",
+        "QuestionText",
+        "WhyAsked",
+        "AnswerTypeCode",
+        "SuggestedOptionsText",
+        "ConfigurationImpact",
+        "DecisionOwnerRole",
+        "RequiredParticipants",
+        "RequiredBy",
+        "EvidenceRequired",
+        "DefaultIfUndecided",
+        "EngineeringNotes",
+        "RequirementId",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "AnswerOption",
+      "temporal": false,
+      "columns": [
+        "AnswerOptionId",
+        "QuestionId",
+        "Sequence",
+        "OptionText",
+        "OptionValue",
+        "IsDefault"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "AnswerExpectation",
+      "temporal": false,
+      "columns": [
+        "AnswerOptionId",
+        "ExpectationId",
+        "Strength"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "QuestionLink",
+      "temporal": false,
+      "columns": [
+        "QuestionLinkId",
+        "QuestionId",
+        "StandardItemId",
+        "RecommendationId",
+        "RequirementId",
+        "ConfigurationChangeId",
+        "LinkTypeCode"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "ExpectationImpact",
+      "temporal": false,
+      "columns": [
+        "ExpectationImpactId",
+        "ExpectationId",
+        "RequirementId",
+        "RecommendationId",
+        "SettingId",
+        "ConfigurationChangeId",
+        "StandardItemId",
+        "ArtifactId",
+        "EffectCode",
+        "Severity",
+        "PersonaId",
+        "ResolutionOption",
+        "AlternativeConfigurationChangeId",
+        "MappingSourceId",
+        "ConfidenceCode"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "Customer",
+      "temporal": false,
+      "columns": [
+        "CustomerId",
+        "CrmAccountId",
+        "Name",
+        "IndustryCode",
+        "OrgSizeBandCode",
+        "Country",
+        "StateRegion",
+        "Notes",
+        "IsActive"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "Contact",
+      "temporal": false,
+      "columns": [
+        "ContactId",
+        "CustomerId",
+        "Name",
+        "Email",
+        "Title",
+        "RoleCode",
+        "IsDecisionOwner"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "Tenant",
+      "temporal": false,
+      "columns": [
+        "TenantId",
+        "CustomerId",
+        "TenantGuid",
+        "PrimaryDomain",
+        "CloudEnvironmentCode",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "TenantLicense",
+      "temporal": false,
+      "columns": [
+        "TenantId",
+        "LicenseSkuId",
+        "AsOfDate",
+        "Quantity",
+        "Assigned"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "Engagement",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "CustomerId",
+        "TenantId",
+        "Code",
+        "Name",
+        "EngagementTypeCode",
+        "CurrentServiceTierId",
+        "ProposedServiceTierId",
+        "StandardId",
+        "ScoringModelId",
+        "StatusCode",
+        "StartDate",
+        "TargetEndDate",
+        "SalesOwner",
+        "TechnicalLead",
+        "ProjectManager"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "EngagementProfile",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "ProfileId",
+        "DriverCode",
+        "TargetDate",
+        "TargetMaturityLevelId",
+        "Priority"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "EngagementBaseline",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "BaselineProfileId",
+        "IsTarget"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "EngagementPlatform",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "PlatformId",
+        "DeviceCount",
+        "ManagedPct"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "EngagementPersona",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "PersonaId",
+        "UserCount"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "EngagementFact",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "FactCode",
+        "ValueNumber",
+        "ValueText",
+        "SourceCode"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "EngagementScopeCategory",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "ScopeCategoryId"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "AssessmentRun",
+      "temporal": false,
+      "columns": [
+        "AssessmentRunId",
+        "EngagementId",
+        "ToolCode",
+        "RunAt",
+        "RunBy",
+        "SourceFileUrl",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "RequirementResult",
+      "temporal": true,
+      "columns": [
+        "EngagementId",
+        "RequirementId",
+        "ImplementationStatusId",
+        "MaturityLevelId",
+        "IsDerived",
+        "IsInherited",
+        "InheritedFrom",
+        "CompensatingNotes",
+        "EvidenceRef",
+        "OwnerContactId",
+        "AssessedBy",
+        "AssessedAt",
+        "AssessmentRunId",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "RecommendationResult",
+      "temporal": true,
+      "columns": [
+        "EngagementId",
+        "RecommendationId",
+        "AssessmentRunId",
+        "ResultCode",
+        "ImplementationStatusId",
+        "ObservedValue",
+        "EvidenceText",
+        "Notes",
+        "CollectedAt"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "SettingObservation",
+      "temporal": false,
+      "columns": [
+        "EngagementId",
+        "SettingId",
+        "AssessmentRunId",
+        "ObservedValue",
+        "CollectedAt",
+        "ArtifactId"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "QuestionResponse",
+      "temporal": true,
+      "columns": [
+        "QuestionResponseId",
+        "EngagementId",
+        "QuestionId",
+        "PersonaId",
+        "AnswerOptionId",
+        "ResponseText",
+        "PriorityCode",
+        "IsDefaultApplied",
+        "DecidedByContactId",
+        "DecidedAt"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "Exception",
+      "temporal": false,
+      "columns": [
+        "ExceptionId",
+        "EngagementId",
+        "RequirementId",
+        "RecommendationId",
+        "StandardItemId",
+        "ArtifactId",
+        "ExceptionTypeCode",
+        "Reason",
+        "AlternativeMeasure",
+        "ApprovedByContactId",
+        "ApprovedAt",
+        "ExpiresOn",
+        "ReviewCadence"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "Finding",
+      "temporal": true,
+      "columns": [
+        "FindingId",
+        "EngagementId",
+        "RequirementId",
+        "RecommendationId",
+        "StandardItemId",
+        "ArtifactId",
+        "Title",
+        "Description",
+        "RiskScore",
+        "BusinessImpact",
+        "EuxImpact",
+        "Difficulty",
+        "EffortHours",
+        "StatusCode",
+        "ConfigurationChangeId",
+        "WbsTaskId",
+        "IsPoam",
+        "PoamEligible",
+        "TargetDate",
+        "ClosedAt",
+        "OwnerContactId"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "EvidenceItem",
+      "temporal": false,
+      "columns": [
+        "EvidenceItemId",
+        "EngagementId",
+        "EvidenceArtifactId",
+        "RequirementId",
+        "Title",
+        "Url",
+        "CollectedAt",
+        "CollectedBy",
+        "ValidUntil"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "ScoreSnapshot",
+      "temporal": false,
+      "columns": [
+        "ScoreSnapshotId",
+        "EngagementId",
+        "ProfileId",
+        "AsOf",
+        "PctComplete",
+        "SprsScore",
+        "AvgRiskScore",
+        "OpenFindings"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "Phase",
+      "temporal": false,
+      "columns": [
+        "PhaseId",
+        "PhaseSetCode",
+        "Code",
+        "Name",
+        "SortOrder",
+        "Description"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "Workstream",
+      "temporal": false,
+      "columns": [
+        "WorkstreamId",
+        "Code",
+        "Name",
+        "Description"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "Role",
+      "temporal": false,
+      "columns": [
+        "RoleId",
+        "Code",
+        "Name",
+        "Description"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "RateCard",
+      "temporal": false,
+      "columns": [
+        "RateCardId",
+        "RoleId",
+        "EffectiveFrom",
+        "EffectiveTo",
+        "BillRate",
+        "CostRate",
+        "CurrencyCode"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "ComplexityFactor",
+      "temporal": false,
+      "columns": [
+        "ComplexityFactorId",
+        "Code",
+        "Name",
+        "Description",
+        "LowMultiplier",
+        "HighMultiplier"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "WbsTemplate",
+      "temporal": false,
+      "columns": [
+        "WbsTemplateId",
+        "Code",
+        "Name",
+        "Version",
+        "StandardId",
+        "SourceDocumentId",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "WbsTask",
+      "temporal": false,
+      "columns": [
+        "WbsTaskId",
+        "WbsTemplateId",
+        "TaskCode",
+        "ParentWbsTaskId",
+        "OutlineNumber",
+        "PhaseId",
+        "WorkstreamId",
+        "Bucket",
+        "TaskName",
+        "SubTaskName",
+        "GroupAbbrev",
+        "ControlCode",
+        "ControlDescription",
+        "Scenario",
+        "Deliverable",
+        "DependencyText",
+        "OutsideDependency",
+        "AppliesWhen",
+        "LicenseRequirementText",
+        "EstHoursMin",
+        "EstHoursMax",
+        "EstHoursLikely",
+        "CalendarDaysMin",
+        "CalendarDaysMax",
+        "IsParallelizable",
+        "IsSupportHandoff",
+        "ComplexityDriver",
+        "ComplexityFactorId",
+        "DefaultRoleId",
+        "LeadershipNotes",
+        "PriorityCode",
+        "SortKey"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "WbsTaskDependency",
+      "temporal": false,
+      "columns": [
+        "WbsTaskId",
+        "PredecessorWbsTaskId",
+        "DependencyTypeCode",
+        "LagDays"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "WbsTaskRole",
+      "temporal": false,
+      "columns": [
+        "WbsTaskId",
+        "RoleId",
+        "EffortPct"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "WbsTaskCoverage",
+      "temporal": false,
+      "columns": [
+        "WbsTaskCoverageId",
+        "WbsTaskId",
+        "StandardItemId",
+        "RecommendationId",
+        "RequirementId",
+        "ConfigurationChangeId",
+        "ArtifactId"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "ScalingRule",
+      "temporal": false,
+      "columns": [
+        "ScalingRuleId",
+        "WbsTaskId",
+        "WorkstreamId",
+        "FactCode",
+        "MinValue",
+        "MaxValue",
+        "Multiplier",
+        "AdderHours",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "SowTemplate",
+      "temporal": false,
+      "columns": [
+        "SowTemplateId",
+        "Code",
+        "Name",
+        "Version",
+        "EngagementTypeCode",
+        "ServiceTierId",
+        "DocumentTemplateUrl"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "SowSection",
+      "temporal": false,
+      "columns": [
+        "SowSectionId",
+        "SowTemplateId",
+        "SectionCode",
+        "Title",
+        "SortOrder",
+        "ContentTemplate",
+        "DataSourceView",
+        "IsRequired"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "Clause",
+      "temporal": false,
+      "columns": [
+        "ClauseId",
+        "Code",
+        "ClauseTypeCode",
+        "Text",
+        "AppliesWhen"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "ClauseLink",
+      "temporal": false,
+      "columns": [
+        "ClauseLinkId",
+        "ClauseId",
+        "WbsTaskId",
+        "StandardItemId",
+        "FrameworkId",
+        "ServiceTierId",
+        "PhaseId"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "Estimate",
+      "temporal": false,
+      "columns": [
+        "EstimateId",
+        "EngagementId",
+        "VersionNo",
+        "StatusCode",
+        "ContingencyPct",
+        "DiscountPct",
+        "RateCardAsOf",
+        "PreparedBy",
+        "PreparedAt",
+        "ApprovedBy",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "EstimateLine",
+      "temporal": false,
+      "columns": [
+        "EstimateLineId",
+        "EstimateId",
+        "WbsTaskId",
+        "RoleId",
+        "FindingId",
+        "HoursMin",
+        "HoursMax",
+        "HoursLikely",
+        "ScalingMultiplier",
+        "ComplexityMultiplier",
+        "BillRate",
+        "ExtendedPrice",
+        "IsIncluded",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "ProjectPlan",
+      "temporal": false,
+      "columns": [
+        "ProjectPlanId",
+        "EngagementId",
+        "EstimateId",
+        "Name",
+        "StartDate",
+        "FinishDate",
+        "StatusCode",
+        "ExportedAt"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "ProjectTask",
+      "temporal": false,
+      "columns": [
+        "ProjectTaskId",
+        "ProjectPlanId",
+        "WbsTaskId",
+        "ParentProjectTaskId",
+        "OutlineNumber",
+        "Name",
+        "Bucket",
+        "AssignedRoleId",
+        "AssignedTo",
+        "StartDate",
+        "FinishDate",
+        "DurationDays",
+        "EffortHours",
+        "PctComplete",
+        "IsMilestone",
+        "StatusCode",
+        "PriorityCode"
+      ]
+    },
+    {
+      "schema": "dlv",
+      "name": "ProjectTaskDependency",
+      "temporal": false,
+      "columns": [
+        "ProjectTaskId",
+        "PredecessorProjectTaskId",
+        "DependencyTypeCode",
+        "LagDays"
+      ]
+    },
+    {
+      "schema": "svc",
+      "name": "ServiceTier",
+      "temporal": false,
+      "columns": [
+        "ServiceTierId",
+        "Code",
+        "Name",
+        "Tagline",
+        "BaseLicenseSkuId",
+        "SortOrder",
+        "Description"
+      ]
+    },
+    {
+      "schema": "svc",
+      "name": "TierFeature",
+      "temporal": false,
+      "columns": [
+        "TierFeatureId",
+        "ServiceTierId",
+        "FeatureText",
+        "CapabilityId",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "svc",
+      "name": "TierCapability",
+      "temporal": false,
+      "columns": [
+        "ServiceTierId",
+        "CapabilityId",
+        "InclusionCode",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "svc",
+      "name": "Component",
+      "temporal": false,
+      "columns": [
+        "ComponentId",
+        "Code",
+        "Name",
+        "Vendor",
+        "CategoryCode",
+        "LicenseSkuId",
+        "Description"
+      ]
+    },
+    {
+      "schema": "svc",
+      "name": "Package",
+      "temporal": false,
+      "columns": [
+        "PackageId",
+        "Code",
+        "Name",
+        "ServiceTierId",
+        "VoiceOptionCode",
+        "Description",
+        "SourceDocumentId"
+      ]
+    },
+    {
+      "schema": "svc",
+      "name": "PackageComponent",
+      "temporal": false,
+      "columns": [
+        "PackageId",
+        "ComponentId",
+        "EffectiveFrom",
+        "Qty",
+        "GdsCost",
+        "Price",
+        "TargetGrossMargin",
+        "ActionRequired"
+      ]
+    },
+    {
+      "schema": "svc",
+      "name": "AddOn",
+      "temporal": false,
+      "columns": [
+        "AddOnId",
+        "SkuCode",
+        "ComponentId",
+        "GdsCost",
+        "Price",
+        "TargetGrossMargin",
+        "EffectiveFrom"
+      ]
+    },
+    {
+      "schema": "sec",
+      "name": "AppUser",
+      "temporal": false,
+      "columns": [
+        "AppUserId",
+        "Upn",
+        "DisplayName",
+        "IsGdsStaff",
+        "IsActive"
+      ]
+    },
+    {
+      "schema": "sec",
+      "name": "AppRole",
+      "temporal": false,
+      "columns": [
+        "AppRoleId",
+        "Code",
+        "Name"
+      ]
+    },
+    {
+      "schema": "sec",
+      "name": "UserRole",
+      "temporal": false,
+      "columns": [
+        "AppUserId",
+        "AppRoleId"
+      ]
+    },
+    {
+      "schema": "sec",
+      "name": "UserCustomerAccess",
+      "temporal": false,
+      "columns": [
+        "AppUserId",
+        "CustomerId"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "Repository",
+      "temporal": false,
+      "columns": [
+        "RepositoryId",
+        "Code",
+        "Name",
+        "StorageTypeCode",
+        "RootUrl",
+        "DefaultBranch",
+        "OwnerRole",
+        "Description",
+        "IsActive"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "RepositoryVersion",
+      "temporal": false,
+      "columns": [
+        "RepositoryVersionId",
+        "RepositoryId",
+        "VersionLabel",
+        "SourceCommitOrETag",
+        "SnapshotAt",
+        "FileCount",
+        "ManifestHash",
+        "StatusCode",
+        "ApprovedBy",
+        "ApprovedOn",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "PolicyType",
+      "temporal": false,
+      "columns": [
+        "PolicyTypeId",
+        "Code",
+        "Name",
+        "GraphResource",
+        "GraphApiVersion",
+        "DeploymentMethodId",
+        "ProductId",
+        "MergeStrategyCode",
+        "NamingPattern"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "Category",
+      "temporal": false,
+      "columns": [
+        "CategoryId",
+        "PolicyTypeId",
+        "Code",
+        "Name",
+        "FolderPath",
+        "NumberFrom",
+        "NumberTo",
+        "IntuneTemplateFamily",
+        "IntuneTemplateId",
+        "SourceBaselinePolicy",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "Artifact",
+      "temporal": true,
+      "columns": [
+        "ArtifactId",
+        "RepositoryVersionId",
+        "CategoryId",
+        "Code",
+        "PolicyNumber",
+        "VariantCode",
+        "FileName",
+        "RelativePath",
+        "DisplayNameTemplate",
+        "ConfiguredValueLabel",
+        "DefaultStateCode",
+        "PlatformCode",
+        "Technologies",
+        "IsTemplateOnly",
+        "ContentJson",
+        "ContentHash",
+        "LeafSettingCount",
+        "StatusCode",
+        "SupersedesArtifactId",
+        "MinLicenseSkuId",
+        "LicenseText",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactSetting",
+      "temporal": false,
+      "columns": [
+        "ArtifactSettingId",
+        "ArtifactId",
+        "SettingId",
+        "ParentArtifactSettingId",
+        "JsonPath",
+        "SettingDefinitionId",
+        "ValueRaw",
+        "ValueDisplay",
+        "IsPrimary",
+        "IsMergeParent"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactTarget",
+      "temporal": false,
+      "columns": [
+        "ArtifactTargetId",
+        "ArtifactId",
+        "TargetTypeCode",
+        "IncludeExclude",
+        "Value",
+        "TokenId",
+        "WellKnownIdId"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactControl",
+      "temporal": false,
+      "columns": [
+        "ArtifactControlId",
+        "ArtifactId",
+        "ControlKindCode",
+        "ControlCode",
+        "OperatorCode",
+        "Value",
+        "WellKnownIdId"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "Token",
+      "temporal": false,
+      "columns": [
+        "TokenId",
+        "Code",
+        "TokenTypeCode",
+        "VariableKey",
+        "ResolutionMethodCode",
+        "IsArray",
+        "IsRequired",
+        "Description"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactToken",
+      "temporal": false,
+      "columns": [
+        "ArtifactId",
+        "TokenId",
+        "OccurrenceCount",
+        "JsonPaths"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "WellKnownId",
+      "temporal": false,
+      "columns": [
+        "WellKnownIdId",
+        "Value",
+        "KindCode",
+        "Name",
+        "IsTenantIndependent",
+        "SourceUrl",
+        "VerifiedOn"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "PolicySet",
+      "temporal": false,
+      "columns": [
+        "PolicySetId",
+        "RepositoryVersionId",
+        "Code",
+        "DisplayName",
+        "Description",
+        "DeploymentOrder",
+        "SetKindCode",
+        "IsApprovedBaseline"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "PolicySetMember",
+      "temporal": false,
+      "columns": [
+        "PolicySetId",
+        "ArtifactId",
+        "Sequence"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "PolicySetInclude",
+      "temporal": false,
+      "columns": [
+        "ParentPolicySetId",
+        "ChildPolicySetId",
+        "Sequence"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "PolicySetPrerequisite",
+      "temporal": false,
+      "columns": [
+        "PolicySetPrerequisiteId",
+        "PolicySetId",
+        "Sequence",
+        "Text",
+        "PrerequisiteTypeCode",
+        "ConfigurationChangeId",
+        "WbsTaskId",
+        "VerificationMethod"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactPrerequisite",
+      "temporal": false,
+      "columns": [
+        "ArtifactPrerequisiteId",
+        "ArtifactId",
+        "PrerequisiteTypeCode",
+        "Description",
+        "DependsOnArtifactId",
+        "ConfigurationChangeId",
+        "IsInRepo"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactRelation",
+      "temporal": false,
+      "columns": [
+        "ArtifactId",
+        "RelatedArtifactId",
+        "RelationTypeCode",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactMapping",
+      "temporal": false,
+      "columns": [
+        "ArtifactMappingId",
+        "ArtifactId",
+        "RecommendationId",
+        "ScfControlId",
+        "RequirementId",
+        "RelationshipTypeId",
+        "EffectCode",
+        "ExpectedValue",
+        "ConfiguredValue",
+        "MappingSourceId",
+        "MethodCode",
+        "ConfidenceCode",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ArtifactConfigurationChange",
+      "temporal": false,
+      "columns": [
+        "ArtifactId",
+        "ConfigurationChangeId"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "MergeRule",
+      "temporal": false,
+      "columns": [
+        "MergeRuleId",
+        "PolicyTypeId",
+        "GroupByCode",
+        "CombineKey",
+        "ConflictRuleCode",
+        "RenumberSettingIds",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "ValidationCheck",
+      "temporal": false,
+      "columns": [
+        "ValidationCheckId",
+        "ArtifactId",
+        "MethodCode",
+        "QueryText",
+        "ExpectedResult"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "RepoFinding",
+      "temporal": true,
+      "columns": [
+        "RepoFindingId",
+        "RepositoryVersionId",
+        "FindingCode",
+        "SeverityCode",
+        "AreaCode",
+        "Title",
+        "Detail",
+        "Recommendation",
+        "EffortText",
+        "StatusCode",
+        "FixedInVersionId"
+      ]
+    },
+    {
+      "schema": "pol",
+      "name": "RepoFindingArtifact",
+      "temporal": false,
+      "columns": [
+        "RepoFindingId",
+        "ArtifactId"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "CustomerVariableSet",
+      "temporal": true,
+      "columns": [
+        "CustomerVariableSetId",
+        "TenantId",
+        "RingId",
+        "EngagementId",
+        "PolicyNamePrefix",
+        "CompactNameSeparators",
+        "StatusCode",
+        "ApprovedOn"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "CustomerVariable",
+      "temporal": true,
+      "columns": [
+        "CustomerVariableId",
+        "CustomerVariableSetId",
+        "TokenId",
+        "Sequence",
+        "ValueText",
+        "ResolvedObjectId",
+        "ResolvedAt",
+        "ResolutionStatusCode"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "PolicyNameOverride",
+      "temporal": false,
+      "columns": [
+        "PolicyNameOverrideId",
+        "CustomerVariableSetId",
+        "PolicyNumber",
+        "ArtifactId",
+        "OverrideName"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "Specification",
+      "temporal": true,
+      "columns": [
+        "SpecificationId",
+        "EngagementId",
+        "VersionNo",
+        "StatusCode",
+        "BasedOnRepositoryVersionId",
+        "ScoringModelId",
+        "CreatedAt",
+        "CreatedBy",
+        "Summary"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "SpecRequirementSet",
+      "temporal": false,
+      "columns": [
+        "SpecRequirementSetId",
+        "SpecificationId",
+        "PersonaId",
+        "Name",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "SpecItem",
+      "temporal": true,
+      "columns": [
+        "SpecItemId",
+        "SpecRequirementSetId",
+        "ItemTypeCode",
+        "RequirementId",
+        "RecommendationId",
+        "ConfigurationChangeId",
+        "ArtifactId",
+        "ExpectationId",
+        "TargetValue",
+        "ImplementationModeCode",
+        "DecisionCode",
+        "Rationale"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "SpecItemSource",
+      "temporal": false,
+      "columns": [
+        "SpecItemId",
+        "SourceEntityTypeId",
+        "SourceKey",
+        "RelationshipTypeId"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "SpecApproval",
+      "temporal": false,
+      "columns": [
+        "SpecApprovalId",
+        "SpecificationId",
+        "ApprovalTypeCode",
+        "ApproverName",
+        "ApprovedAt",
+        "DecisionCode",
+        "Comments"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "SpecChange",
+      "temporal": false,
+      "columns": [
+        "SpecChangeId",
+        "SpecificationId",
+        "PreviousSpecificationId",
+        "SpecItemId",
+        "ChangeTypeCode",
+        "OldValue",
+        "NewValue"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "ExperienceMapSnapshot",
+      "temporal": false,
+      "columns": [
+        "ExperienceMapSnapshotId",
+        "SpecificationId",
+        "GeneratedAt",
+        "ContentJson",
+        "DocumentUrl"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "GeneratedPolicySet",
+      "temporal": false,
+      "columns": [
+        "GeneratedPolicySetId",
+        "SpecificationId",
+        "CustomerVariableSetId",
+        "RingId",
+        "PolicySetJson",
+        "CustomerVariablesJson",
+        "NameOverridesJson",
+        "ContentHash",
+        "GeneratedAt",
+        "StatusCode"
+      ]
+    },
+    {
+      "schema": "spec",
+      "name": "GeneratedPolicySetMember",
+      "temporal": false,
+      "columns": [
+        "GeneratedPolicySetId",
+        "ArtifactId",
+        "Sequence",
+        "SourcePolicySetId",
+        "StateOverrideCode"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "DeploymentMethod",
+      "temporal": false,
+      "columns": [
+        "DeploymentMethodId",
+        "Code",
+        "Name",
+        "AuthModelCode",
+        "PermissionNotes",
+        "SupportsDriftRead"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "ServiceMethodCoverage",
+      "temporal": false,
+      "columns": [
+        "ServiceMethodCoverageId",
+        "ProductId",
+        "SettingGroup",
+        "DeploymentMethodId",
+        "JsonNativeCode",
+        "AppOnlyUnattended",
+        "ReadWriteCode",
+        "PortalOnlyGaps",
+        "DriftOption",
+        "RepoStatusCode",
+        "SourceUrl",
+        "ConfidenceCode"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "Ring",
+      "temporal": false,
+      "columns": [
+        "RingId",
+        "Code",
+        "Name",
+        "SortOrder",
+        "DefaultStateCode"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "DeploymentPlan",
+      "temporal": true,
+      "columns": [
+        "DeploymentPlanId",
+        "EngagementId",
+        "SpecificationId",
+        "GeneratedPolicySetId",
+        "StatusCode",
+        "PlannedStart",
+        "PlannedEnd",
+        "ApprovedBy",
+        "ApprovedOn"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "DeploymentPlanItem",
+      "temporal": false,
+      "columns": [
+        "DeploymentPlanItemId",
+        "DeploymentPlanId",
+        "ArtifactId",
+        "RingId",
+        "WaveNo",
+        "Sequence",
+        "TargetStateCode",
+        "PlannedDate",
+        "DependsOnItemId"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "DeploymentRun",
+      "temporal": true,
+      "columns": [
+        "DeploymentRunId",
+        "DeploymentPlanItemId",
+        "TenantId",
+        "ArtifactId",
+        "ContentHash",
+        "RequestJson",
+        "ResponseJson",
+        "TargetObjectId",
+        "StatusCode",
+        "StartedAt",
+        "CompletedAt",
+        "Operator",
+        "ApprovalRef"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "ChangeRequest",
+      "temporal": true,
+      "columns": [
+        "ChangeRequestId",
+        "EngagementId",
+        "SourceCode",
+        "DriftId",
+        "Title",
+        "ImpactAnalysis",
+        "DecisionCode",
+        "SowAmendmentRef",
+        "CreatedAt",
+        "DecidedAt"
+      ]
+    },
+    {
+      "schema": "deploy",
+      "name": "ChangeForm",
+      "temporal": false,
+      "columns": [
+        "ChangeFormId",
+        "ChangeRequestId",
+        "FormTypeCode",
+        "DocumentUrl",
+        "GeneratedAt",
+        "SignedBy",
+        "SignedAt"
+      ]
+    },
+    {
+      "schema": "audit",
+      "name": "TenantConnection",
+      "temporal": false,
+      "columns": [
+        "TenantConnectionId",
+        "TenantId",
+        "AppRoleCode",
+        "AppId",
+        "CertificateThumbprint",
+        "CertificateExpiresOn",
+        "ConsentStatusCode",
+        "GdapRelationshipId",
+        "LastVerifiedAt"
+      ]
+    },
+    {
+      "schema": "audit",
+      "name": "Snapshot",
+      "temporal": false,
+      "columns": [
+        "SnapshotId",
+        "TenantId",
+        "WorkloadCode",
+        "CollectedAt",
+        "BlobUri",
+        "ContentHash",
+        "CollectorVersion",
+        "StatusCode"
+      ]
+    },
+    {
+      "schema": "audit",
+      "name": "SnapshotItem",
+      "temporal": false,
+      "columns": [
+        "SnapshotItemId",
+        "SnapshotId",
+        "SettingId",
+        "ArtifactId",
+        "ObjectId",
+        "ObservedValue",
+        "ValueHash"
+      ]
+    },
+    {
+      "schema": "audit",
+      "name": "ApprovedBaseline",
+      "temporal": true,
+      "columns": [
+        "ApprovedBaselineId",
+        "TenantId",
+        "SpecificationId",
+        "GeneratedPolicySetId",
+        "VersionNo",
+        "EffectiveFrom",
+        "ApprovedBy"
+      ]
+    },
+    {
+      "schema": "audit",
+      "name": "ComparisonRule",
+      "temporal": false,
+      "columns": [
+        "ComparisonRuleId",
+        "SettingId",
+        "ArtifactId",
+        "RuleCode",
+        "TokenId",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "audit",
+      "name": "Drift",
+      "temporal": true,
+      "columns": [
+        "DriftId",
+        "TenantId",
+        "ApprovedBaselineId",
+        "SnapshotItemId",
+        "ArtifactId",
+        "SettingId",
+        "ExpectedValue",
+        "ObservedValue",
+        "ClassificationCode",
+        "RiskScore",
+        "FirstSeenAt",
+        "ResolvedAt",
+        "ChangeRequestId"
+      ]
+    },
+    {
+      "schema": "psa",
+      "name": "CompanyMap",
+      "temporal": false,
+      "columns": [
+        "CompanyMapId",
+        "CustomerId",
+        "TenantId",
+        "CwCompanyId",
+        "CwCompanyIdentifier",
+        "SyncEnabled"
+      ]
+    },
+    {
+      "schema": "psa",
+      "name": "ConfigurationSync",
+      "temporal": false,
+      "columns": [
+        "ConfigurationSyncId",
+        "CompanyMapId",
+        "CwConfigurationId",
+        "ConfigurationTypeCode",
+        "SourceEntityTypeId",
+        "SourceKey",
+        "LastSyncedAt",
+        "StatusCode"
+      ]
+    },
+    {
+      "schema": "psa",
+      "name": "TicketLink",
+      "temporal": false,
+      "columns": [
+        "TicketLinkId",
+        "CwTicketId",
+        "DriftId",
+        "DeploymentRunId",
+        "ChangeRequestId",
+        "LinkTypeCode",
+        "CreatedAt"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "QuestionModule",
+      "temporal": false,
+      "columns": [
+        "QuestionModuleId",
+        "Code",
+        "Name",
+        "Description",
+        "SortOrder"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "QuestionRule",
+      "temporal": false,
+      "columns": [
+        "QuestionRuleId",
+        "QuestionModuleId",
+        "ConditionExpression",
+        "Priority",
+        "Notes"
+      ]
+    },
+    {
+      "schema": "eux",
+      "name": "FormBinding",
+      "temporal": false,
+      "columns": [
+        "FormBindingId",
+        "QuestionId",
+        "FormId",
+        "FormItemId",
+        "Version"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "FormSubmission",
+      "temporal": false,
+      "columns": [
+        "FormSubmissionId",
+        "EngagementId",
+        "FormId",
+        "ResponseId",
+        "PayloadJson",
+        "PayloadHash",
+        "ReceivedAt"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "QuestionnaireInstance",
+      "temporal": false,
+      "columns": [
+        "QuestionnaireInstanceId",
+        "EngagementId",
+        "QuestionSetId",
+        "GeneratedAt",
+        "RuleHitsJson",
+        "StatusCode"
+      ]
+    },
+    {
+      "schema": "cust",
+      "name": "SatisfactionResult",
+      "temporal": false,
+      "columns": [
+        "SatisfactionResultId",
+        "EngagementId",
+        "PersonaId",
+        "SurveyDate",
+        "Score",
+        "AcceptanceStatusCode",
+        "Comments"
+      ]
+    }
+  ]
+}

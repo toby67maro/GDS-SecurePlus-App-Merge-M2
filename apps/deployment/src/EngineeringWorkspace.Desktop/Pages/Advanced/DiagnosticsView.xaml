@@ -1,0 +1,51 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Advanced.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <UserControl.Resources>
+        <DataTemplate x:Key="Line">
+            <Grid Margin="0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Name}" FontWeight="{DynamicResource AppFont.Weight.Medium}" />
+                <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" TextWrapping="Wrap" />
+                <Button Grid.Column="2" Content="Open" Style="{StaticResource Button.Secondary}" Visibility="{Binding HasPath, Converter={StaticResource BoolToVisibility}}"
+                        Command="{Binding DataContext.OpenFolderCommand, ElementName=Root}" CommandParameter="{Binding Path}" />
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <WrapPanel>
+                <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+                <Button Content="Reload Knowledge Base" Command="{Binding ReloadKnowledgeBaseCommand}" Style="{StaticResource Button.Secondary}" />
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="8,0" TextWrapping="Wrap" />
+            </WrapPanel>
+        </Border>
+        <Expander Header="Environment" IsExpanded="True" Style="{StaticResource Section.Expander}">
+            <ItemsControl ItemsSource="{Binding Environment}" ItemTemplate="{StaticResource Line}" />
+        </Expander>
+        <Expander Header="Knowledge Base" IsExpanded="True" Style="{StaticResource Section.Expander}">
+            <ItemsControl ItemsSource="{Binding KnowledgeBase}" ItemTemplate="{StaticResource Line}" />
+        </Expander>
+        <Expander Header="Folders" IsExpanded="True" Style="{StaticResource Section.Expander}">
+            <ItemsControl ItemsSource="{Binding Folders}" ItemTemplate="{StaticResource Line}" />
+        </Expander>
+        <Expander Header="Configuration Issues" IsExpanded="True" Style="{StaticResource Section.Expander}">
+            <StackPanel>
+                <TextBlock Text="{Binding IssueSummary}" Style="{StaticResource Text.Secondary}" />
+                <DataGrid ItemsSource="{Binding Issues}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="360" Margin="0,6,0,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" />
+                        <DataGridTextColumn Header="Code" Binding="{Binding ErrorCode}" />
+                        <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+                        <DataGridTextColumn Header="File" Binding="{Binding FilePath}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Expander>
+    </StackPanel>
+</UserControl>

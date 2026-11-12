@@ -1,0 +1,99 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Reporting.CompletionReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportCommand}" VerticalAlignment="Top" />
+                    <TextBlock Text="{Binding ReportTitle}" Style="{StaticResource Text.Heading3}" Margin="0" />
+                </DockPanel>
+                <WrapPanel Margin="0,6,0,0">
+                    <WrapPanel.Resources>
+                        <Style TargetType="{x:Type StackPanel}">
+                            <Setter Property="Margin" Value="0,0,12,6" />
+                        </Style>
+                    </WrapPanel.Resources>
+                    <controls:CustomerSelector Margin="0,0,12,6" />
+                    <StackPanel Width="210" Visibility="{Binding ShowScope, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Scope" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{Binding Scopes}" SelectedItem="{Binding Scope}" DisplayMemberPath="Label" AutomationProperties.Name="Scope" />
+                    </StackPanel>
+                    <StackPanel Width="190">
+                        <TextBlock Text="Group By" Style="{StaticResource Text.Label}" />
+                        <ComboBox ItemsSource="{Binding GroupByOptions}" SelectedItem="{Binding GroupBy}" AutomationProperties.Name="Group by" />
+                    </StackPanel>
+                    <StackPanel Width="160">
+                        <TextBlock Text="Severity" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding SeverityFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel Width="220">
+                        <TextBlock Text="Solution Area" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding SolutionFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel Width="180">
+                        <TextBlock Text="Status" Style="{StaticResource Text.Label}" />
+                        <ContentControl Content="{Binding StatusFilter}" Focusable="False" />
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal">
+                        <Button Content="Clear Filters" Command="{Binding ClearFiltersCommand}" Style="{StaticResource Button.Secondary}" />
+                        <Button Content="Refresh" Command="{Binding RefreshCommand}" Style="{StaticResource Button.Secondary}" />
+                    </StackPanel>
+                </WrapPanel>
+                <TextBlock Text="{Binding ScopeText}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" Margin="0,4,0,0" />
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" Margin="0,4,0,0" />
+            </StackPanel>
+        </Border>
+
+        <StackPanel Visibility="{Binding HasResults, Converter={StaticResource BoolToVisibility}}">
+            <controls:KpiPanel ItemsSource="{Binding Kpis}" />
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Completion" Style="{StaticResource Text.Heading3}" Margin="0,0,0,6" />
+                    <controls:BarChart ItemsSource="{Binding Bars}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <controls:ResizablePanel Header="Groups (select a row to see its controls)" PanelHeight="240">
+                    <DataGrid ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Group" Binding="{Binding Label}" Width="2*" />
+                            <DataGridTextColumn Header="Controls" Binding="{Binding Controls}" Width="Auto" />
+                            <DataGridTextColumn Header="Satisfied" Binding="{Binding Satisfied}" Width="Auto" />
+                            <DataGridTextColumn Header="Partial" Binding="{Binding Partial}" Width="Auto" />
+                            <DataGridTextColumn Header="Not Satisfied" Binding="{Binding NotSatisfied}" Width="Auto" />
+                            <DataGridTextColumn Header="Exceptions" Binding="{Binding Excepted}" Width="Auto" />
+                            <DataGridTextColumn Header="Not Evaluated" Binding="{Binding NotEvaluated}" Width="Auto" />
+                            <DataGridTextColumn Header="Completion %" Binding="{Binding PercentText}" Width="Auto" SortMemberPath="Percent" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel>
+                        <controls:SearchBox DockPanel.Dock="Right" Text="{Binding ControlSearch, Mode=TwoWay}" Placeholder="Search controls" Width="280" />
+                        <TextBlock Text="{Binding ControlsCaption}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    </DockPanel>
+                    <controls:ResizablePanel Header="Controls" PanelHeight="320">
+                        <DataGrid ItemsSource="{Binding ControlsView}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="110" />
+                                <DataGridTextColumn Header="Control" Binding="{Binding Name}" Width="3*" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
+                                <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="Auto" />
+                                <DataGridTextColumn Header="Type" Binding="{Binding Kind}" Width="Auto" />
+                                <DataGridTextColumn Header="Solution Area" Binding="{Binding SolutionArea}" Width="*" />
+                                <DataGridTextColumn Header="Experience" Binding="{Binding Experience}" Width="*" />
+                                <DataGridTextColumn Header="Effort" Binding="{Binding Effort}" Width="Auto" />
+                                <DataGridTextColumn Header="Evidence" Binding="{Binding Evidence}" Width="2*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </controls:ResizablePanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,66 @@
+name: Windows CI
+
+# Builds, tests and smoke-tests the WPF application on Windows for every push to a feature branch and every pull
+# request. The smoke test opens the setup and main windows off screen and renders and navigates every page, so XAML,
+# style, template and page-load errors fail CI instead of reaching a release.
+on:
+  push:
+    branches:
+      - "gds/**"
+      - "claude/**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Build (Release)
+        run: dotnet build EngineeringWorkspace.slnx -c Release --nologo
+
+      - name: Test
+        run: dotnet test EngineeringWorkspace.slnx -c Release --no-build --nologo
+
+      - name: Smoke test (renders and navigates every page)
+        shell: pwsh
+        run: |
+          $data = Join-Path $env:RUNNER_TEMP "secureplus-ci-smoke"
+          New-Item -ItemType Directory -Force $data | Out-Null
+          $exe = Get-ChildItem src/EngineeringWorkspace.Desktop/bin/Release -Recurse -Filter EngineeringWorkspace.Desktop.exe | Select-Object -First 1
+          $process = Start-Process -FilePath $exe.FullName -ArgumentList "--smoke-test", "--data-dir", $data -Wait -PassThru -RedirectStandardOutput "$data/stdout.txt" -RedirectStandardError "$data/stderr.txt"
+          Get-Content "$data/stdout.txt" -ErrorAction SilentlyContinue
+          Get-Content "$data/stderr.txt" -ErrorAction SilentlyContinue
+          Get-ChildItem (Join-Path $data "data/Logs") -Filter *.log -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName -Tail 120 }
+          Get-ChildItem $data -Filter "*diagnostic*" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName }
+          Write-Host "Smoke test exit code: $($process.ExitCode)"
+          if ($process.ExitCode -ne 0) { throw "The application smoke test failed." }
+
+      - name: Compile the installer script (catches setup wizard and [Code] errors before a release)
+        shell: pwsh
+        run: |
+          $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) {
+            choco install innosetup --no-progress -y
+            if ($LASTEXITCODE -ne 0) { throw "Inno Setup could not be installed." }
+            $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+          $source = (Get-ChildItem src/EngineeringWorkspace.Desktop/bin/Release -Recurse -Filter EngineeringWorkspace.Desktop.exe | Select-Object -First 1).DirectoryName
+          $out = Join-Path $env:RUNNER_TEMP "installer"
+          & $iscc /Q "/DAppVersion=0.0.0-ci" "/DNumericVersion=0.0.0" "/DSourceDir=$source" "/DOutputDir=$out" packaging/installer/SecurePlusAgent.iss
+          if ($LASTEXITCODE -ne 0) { throw "The installer script did not compile." }

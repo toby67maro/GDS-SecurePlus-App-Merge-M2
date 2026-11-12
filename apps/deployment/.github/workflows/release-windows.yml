@@ -1,0 +1,107 @@
+name: Windows release packaging
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*.*.*-*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create, for example v2.0.0 or v2.0.0-beta.1 (must match the Version in build/Version.props)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: windows-latest
+    env:
+      # Tag pushes use the pushed tag; manual runs create the tag on the selected commit when the release is published.
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Validate release version
+        shell: pwsh
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$') { throw "Release tag '$($env:RELEASE_TAG)' must look like v1.2.3 or v1.2.3-beta.1." }
+          $expected = $env:RELEASE_TAG.TrimStart("v")
+          $output = & dotnet msbuild src/EngineeringWorkspace.Desktop/EngineeringWorkspace.Desktop.csproj -getProperty:Version -nologo
+          if ($LASTEXITCODE -ne 0) { throw "Unable to resolve Version from MSBuild." }
+          $actual = ($output | Select-Object -Last 1).ToString().Trim()
+          if ($actual -match '[:=]') { $actual = $actual.Split(':', 2)[-1].Split('=', 2)[-1].Trim() }
+          if ($expected -ne $actual) { throw "Tag version $expected does not match Version $actual (build/Version.props)." }
+          $notes = "docs/release-notes/$($env:RELEASE_TAG).md"
+          if (-not (Test-Path $notes)) { throw "Release notes $notes are missing." }
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) {
+            choco install innosetup --no-progress -y
+            if ($LASTEXITCODE -ne 0) { throw "Inno Setup could not be installed." }
+          }
+
+      - name: Run tests
+        shell: pwsh
+        run: dotnet test EngineeringWorkspace.slnx -c Release --nologo
+
+      - name: Package installer, ZIPs and (when a certificate is configured) signed MSIX
+        id: package
+        shell: pwsh
+        env:
+          MSIX_CERTIFICATE_BASE64: ${{ secrets.MSIX_CERTIFICATE_BASE64 }}
+          MSIX_CERTIFICATE_PASSWORD: ${{ secrets.MSIX_CERTIFICATE_PASSWORD }}
+        run: |
+          if ($env:MSIX_CERTIFICATE_BASE64) {
+            $cert = Join-Path $env:RUNNER_TEMP "secureplus-signing.pfx"
+            [IO.File]::WriteAllBytes($cert, [Convert]::FromBase64String($env:MSIX_CERTIFICATE_BASE64))
+            try {
+              ./scripts/package-windows.ps1 -CertificatePath $cert -CertificatePassword $env:MSIX_CERTIFICATE_PASSWORD
+            }
+            finally {
+              Remove-Item $cert -Force -ErrorAction SilentlyContinue
+            }
+            "signed=true" >> $env:GITHUB_OUTPUT
+          }
+          else {
+            Write-Host "::warning::MSIX_CERTIFICATE_BASE64 is not set: the MSIX is skipped, the installer is unsigned and the release is a pre-release."
+            ./scripts/package-windows.ps1 -SkipMsix
+            "signed=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Smoke test the published application (renders every window and page)
+        shell: pwsh
+        run: |
+          $data = Join-Path $env:RUNNER_TEMP "secureplus-smoke"
+          New-Item -ItemType Directory -Force $data | Out-Null
+          $exe = Get-ChildItem artifacts/publish -Recurse -Filter EngineeringWorkspace.Desktop.exe | Where-Object { $_.DirectoryName -notmatch 'framework-dependent' } | Select-Object -First 1
+          $process = Start-Process -FilePath $exe.FullName -ArgumentList "--smoke-test", "--data-dir", $data -Wait -PassThru
+          Write-Host "Smoke test exit code: $($process.ExitCode)"
+          Get-ChildItem (Join-Path $data "data/Logs") -Filter *.log -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName -Tail 80 }
+          Get-ChildItem $data -Filter "*diagnostic*" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName }
+          if ($process.ExitCode -ne 0) { throw "The application smoke test failed." }
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.sha }}
+          name: Secure Plus – Modern Work ${{ env.RELEASE_TAG }}
+          files: |
+            artifacts/*-Setup.exe
+            artifacts/*.msix
+            artifacts/*.zip
+            artifacts/*-SHA256SUMS.txt
+          prerelease: ${{ steps.package.outputs.signed != 'true' || contains(env.RELEASE_TAG, '-') }}
+          body_path: docs/release-notes/${{ env.RELEASE_TAG }}.md

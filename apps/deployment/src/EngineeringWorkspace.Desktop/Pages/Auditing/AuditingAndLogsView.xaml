@@ -1,0 +1,101 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Auditing.AuditingAndLogsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Effective Configuration" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                <TextBlock Style="{StaticResource Text.Caption}">
+                    <Run Text="Immutable snapshot loaded " /><Run Text="{Binding LoadedAt, Mode=OneWay}" /><Run Text=". Secret-bearing values are always redacted. " />
+                    <Run Text="{Binding EntrySummary, Mode=OneWay}" />
+                </TextBlock>
+                <Grid Margin="0,8,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" /><ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <controls:SearchBox Text="{Binding SearchText, Mode=TwoWay}" Placeholder="Search keys, values and source files" />
+                    <ComboBox Grid.Column="2" ItemsSource="{Binding Layers}" SelectedItem="{Binding SelectedLayer}" AutomationProperties.Name="Layer filter" />
+                    <ComboBox Grid.Column="4" ItemsSource="{Binding Sections}" SelectedItem="{Binding SelectedSection}" AutomationProperties.Name="Section filter" />
+                    <ComboBox Grid.Column="6" ItemsSource="{Binding States}" SelectedItem="{Binding SelectedState}" AutomationProperties.Name="Validation state filter" />
+                </Grid>
+                <controls:ResizablePanel Header="Effective Configuration" PanelHeight="360">
+                    <DataGrid ItemsSource="{Binding Entries}" EnableRowVirtualization="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Key" Binding="{Binding Key}" Width="2*" />
+                            <DataGridTextColumn Header="Effective Value" Binding="{Binding EffectiveValue}" Width="2*" />
+                            <DataGridTextColumn Header="Redacted Value" Binding="{Binding RedactedValue}" Width="*" />
+                            <DataGridTextColumn Header="Source File" Binding="{Binding SourceFile}" Width="2*" />
+                            <DataGridTextColumn Header="Layer" Binding="{Binding Layer}" Width="*" />
+                            <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="*" />
+                            <DataGridTextColumn Header="Validation" Binding="{Binding ValidationState}" Width="Auto" />
+                            <DataGridCheckBoxColumn Header="Overridden" Binding="{Binding IsOverridden}" Width="Auto" />
+                            <DataGridTextColumn Header="Previous Source" Binding="{Binding PreviousSource}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Configuration Issues" Style="{StaticResource Text.Heading3}" Margin="0,0,0,8" />
+                <controls:ResizablePanel Header="Configuration Diagnostics" PanelHeight="240">
+                    <DataGrid ItemsSource="{Binding Issues}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="Auto" />
+                            <DataGridTextColumn Header="Code" Binding="{Binding ErrorCode}" Width="Auto" />
+                            <DataGridTextColumn Header="File" Binding="{Binding FilePath}" Width="*" />
+                            <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="Auto" />
+                            <DataGridTextColumn Header="Key" Binding="{Binding Key}" Width="Auto" />
+                            <DataGridTextColumn Header="Value" Binding="{Binding SafeValue}" Width="Auto" />
+                            <DataGridTextColumn Header="Problem" Binding="{Binding Message}" Width="3*" />
+                            <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedFormat}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+                <TextBlock Text="Sources (precedence, lowest first)" Style="{StaticResource Text.Label}" Margin="0,12,0,4" />
+                <controls:ResizablePanel Header="Configuration Sources" PanelHeight="240">
+                    <DataGrid ItemsSource="{Binding Sources}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Order" Binding="{Binding Order}" Width="Auto" />
+                            <DataGridTextColumn Header="Layer" Binding="{Binding Layer}" Width="*" />
+                            <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="3*" />
+                            <DataGridCheckBoxColumn Header="Found" Binding="{Binding Exists}" Width="Auto" />
+                            <DataGridTextColumn Header="Keys" Binding="{Binding KeyCount}" Width="Auto" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Recent Audit Events" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                <TextBlock Style="{StaticResource Text.Caption}">
+                    <Run Text="Audit: " /><Run Text="{Binding AuditDirectory, Mode=OneWay}" /><Run Text="   Logs: " /><Run Text="{Binding LogDirectory, Mode=OneWay}" />
+                </TextBlock>
+                <WrapPanel Margin="0,8,0,8">
+                    <Button Content="Refresh" Command="{Binding RefreshAuditCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Open Audit Folder" Command="{Binding OpenAuditCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Open Log Folder" Command="{Binding OpenLogsCommand}" Style="{StaticResource Button.Secondary}" />
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" />
+                <controls:ResizablePanel Header="Recent Audit Events" PanelHeight="300">
+                    <DataGrid ItemsSource="{Binding AuditEvents}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Time" Binding="{Binding TimestampUtc, Converter={StaticResource UtcToLocalText}}" Width="Auto" />
+                            <DataGridTextColumn Header="Event" Binding="{Binding EventType}" Width="*" />
+                            <DataGridTextColumn Header="Outcome" Binding="{Binding Outcome}" Width="Auto" />
+                            <DataGridTextColumn Header="Actor" Binding="{Binding Actor}" Width="Auto" />
+                            <DataGridTextColumn Header="Workspace" Binding="{Binding WorkspaceId}" Width="Auto" />
+                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerId}" Width="Auto" />
+                            <DataGridTextColumn Header="Summary" Binding="{Binding Summary}" Width="3*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </controls:ResizablePanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

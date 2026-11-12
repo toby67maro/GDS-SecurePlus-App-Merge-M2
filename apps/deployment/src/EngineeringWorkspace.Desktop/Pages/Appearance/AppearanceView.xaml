@@ -1,0 +1,136 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Appearance.AppearanceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Theme Gallery" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                <TextBlock Text="{Binding CurrentThemeText}" Style="{StaticResource Text.Secondary}" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,0,0,8"
+                           Text="Pick a theme; it applies at once and is remembered for you. Workspace Theme returns to the workspace's stored theme or the properties file below." />
+                <Button Content="Use Workspace Theme" Command="{Binding ApplyPresetCommand}" Style="{StaticResource Button.Secondary}" HorizontalAlignment="Left" Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding Presets}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.ApplyPresetCommand, ElementName=Root}" CommandParameter="{Binding}" Margin="0,0,10,10" Padding="0"
+                                    Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Name}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="Card" Width="176" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource AppBrush.Border}"
+                                                Background="{DynamicResource AppBrush.SurfaceBackground}" RenderTransformOrigin="0.5,0.5">
+                                            <Border.RenderTransform>
+                                                <TranslateTransform x:Name="Lift" Y="0" />
+                                            </Border.RenderTransform>
+                                            <StackPanel>
+                                                <Border Height="88" CornerRadius="8,8,0,0" Background="{Binding SwatchBackground}" ClipToBounds="True">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="40" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Background="{Binding SwatchNavigation}" CornerRadius="8,0,0,0" />
+                                                        <StackPanel Grid.Column="1" Margin="10">
+                                                            <Border Height="8" Width="70" CornerRadius="4" Background="{Binding SwatchNavigation}" HorizontalAlignment="Left" Opacity="0.7" />
+                                                            <Border Height="6" Width="96" CornerRadius="3" Background="{Binding SwatchNavigation}" HorizontalAlignment="Left" Opacity="0.35" Margin="0,8,0,0" />
+                                                            <Border Height="6" Width="80" CornerRadius="3" Background="{Binding SwatchNavigation}" HorizontalAlignment="Left" Opacity="0.35" Margin="0,4,0,0" />
+                                                            <Border Height="16" Width="52" CornerRadius="4" Background="{Binding SwatchAccent}" HorizontalAlignment="Left" Margin="0,10,0,0" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                                <StackPanel Margin="10,6,10,8">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="{DynamicResource AppFont.Weight.Medium}" Foreground="{DynamicResource AppBrush.TextPrimary}" />
+                                                    <TextBlock Text="{Binding Family}" Style="{StaticResource Text.Caption}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AppBrush.Primary}" />
+                                                <Trigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetName="Lift" Storyboard.TargetProperty="Y" To="-4" Duration="0:0:0.15" />
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.EnterActions>
+                                                <Trigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetName="Lift" Storyboard.TargetProperty="Y" To="0" Duration="0:0:0.15" />
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.ExitActions>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Theme" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                <TextBlock Style="{StaticResource Text.Label}" Text="Mode (applies to this session; the properties file is not rewritten)" />
+                <ComboBox ItemsSource="{Binding Modes}" SelectedItem="{Binding SelectedMode}" IsEnabled="{Binding AllowUserSelection}" Width="220" HorizontalAlignment="Left" AutomationProperties.Name="Theme mode" />
+                <TextBlock Style="{StaticResource Text.Caption}">
+                    <Run Text="Effective Theme: " /><Run Text="{Binding EffectiveMode, Mode=OneWay}" />
+                    <Run Text=" (System follows the Windows app theme)" />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Properties File" Style="{StaticResource Text.Heading3}" Margin="0,0,0,4" />
+                <TextBlock Text="{Binding PropertiesPath}" FontFamily="Consolas" />
+                <TextBlock Style="{StaticResource Text.Secondary}">
+                    <Run Text="Status: " /><Run Text="{Binding SourceLabel, Mode=OneWay}" FontWeight="{DynamicResource AppFont.Weight.Medium}" />
+                </TextBlock>
+                <WrapPanel Margin="0,12,0,0">
+                    <Button Content="Reload Appearance" Command="{Binding ReloadCommand}" />
+                    <Button Content="Open Properties Location" Command="{Binding OpenPropertiesLocationCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Reset to Built-In GDS Defaults" Command="{Binding ResetToDefaultsCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Create Properties File From Current Defaults" Command="{Binding CreatePropertiesFileCommand}" Style="{StaticResource Button.Secondary}" />
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Text="Validation Warnings" Style="{StaticResource Text.Label}" Margin="0,12,0,4" />
+                <ItemsControl ItemsSource="{Binding Diagnostics}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Style="{StaticResource Text.Secondary}" Margin="0,1" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Effective Colors" Style="{StaticResource Text.Heading3}" Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding Swatches}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Width="280" Margin="0,2">
+                                <Border Width="28" Height="18" Background="{Binding Value}" BorderBrush="{DynamicResource AppBrush.Border}" BorderThickness="1" CornerRadius="2" Margin="0,0,8,0" />
+                                <TextBlock Text="{Binding Token}" Width="180" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding Value}" FontFamily="Consolas" FontSize="{DynamicResource AppFont.Size.Caption}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

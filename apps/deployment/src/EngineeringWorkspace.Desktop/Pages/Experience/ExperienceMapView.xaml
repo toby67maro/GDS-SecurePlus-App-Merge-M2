@@ -1,0 +1,167 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Experience.ExperienceMapView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls"
+             x:Name="Page">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <controls:ExportButtons DockPanel.Dock="Right" Command="{Binding ExportCommand}" VerticalAlignment="Top" />
+                    <controls:CustomerSelector HorizontalAlignment="Left" />
+                </DockPanel>
+                <TextBlock Text="What if we add…" Style="{StaticResource Text.Label}" Margin="0,8,0,2" />
+                <ItemsControl ItemsSource="{Binding Frameworks}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ToggleButton Content="{Binding Name}" IsChecked="{Binding IsSelected}" ToolTip="{Binding Description}" Margin="0,0,6,6" Padding="10,3" Cursor="Hand" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <CheckBox Content="Strict: also fix choices that only weaken a framework" IsChecked="{Binding Strict}" Margin="0,4,0,0" />
+                <TextBlock Text="{Binding Summary}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+        </Border>
+
+        <WrapPanel>
+            <Border Style="{StaticResource Kpi.Tile}">
+                <StackPanel>
+                    <TextBlock Text="User Groups" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding GroupCount}" Style="{StaticResource Text.KpiValue}" />
+                    <TextBlock Text="plus All Users" Style="{StaticResource Text.Caption}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Kpi.Tile}">
+                <StackPanel>
+                    <TextBlock Text="Conflicting Choices" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding TotalConflicts}" Style="{StaticResource Text.KpiValue}" Foreground="{DynamicResource AppBrush.Error}" />
+                    <TextBlock Text="with the selected frameworks" Style="{StaticResource Text.Caption}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Kpi.Tile}">
+                <StackPanel>
+                    <TextBlock Text="Average Friction" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding FrictionDelta}" Style="{StaticResource Text.KpiValue}" />
+                    <TextBlock Text="now → with frameworks (lower is smoother)" Style="{StaticResource Text.Caption}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Kpi.Tile}">
+                <StackPanel>
+                    <TextBlock Text="Average Security" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding SecurityDelta}" Style="{StaticResource Text.KpiValue}" />
+                    <TextBlock Text="now → with frameworks" Style="{StaticResource Text.Caption}" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel>
+            <controls:DonutChart Title="Conflicts by Framework (click to break down)" ItemsSource="{Binding ConflictsByFramework}" CenterText="{Binding TotalConflicts}"
+                                 CenterCaption="conflicts" Command="{Binding ShowDetailCommand}" />
+            <controls:DonutChart Title="Users by Group" ItemsSource="{Binding UsersByGroup}" InnerRadiusRatio="0" Command="{Binding ShowDetailCommand}" />
+            <controls:HorizontalBarChart Title="Friction Added by the Frameworks" ItemsSource="{Binding FrictionChange}" ValueFormat="+0.#;-0.#;0" LabelWidth="170" MinWidth="480"
+                                         Command="{Binding ShowDetailCommand}" />
+        </WrapPanel>
+
+        <controls:HeatGrid Title="User Friction Today (group × solution; click a cell)" Cells="{Binding FrictionNow}" HighIsGood="False"
+                           LegendText="low friction → high friction" Command="{Binding ShowDetailCommand}" />
+        <controls:HeatGrid Title="User Friction With the Selected Frameworks (change in brackets)" Cells="{Binding FrictionWithFrameworks}" HighIsGood="False"
+                           LegendText="low friction → high friction" Command="{Binding ShowDetailCommand}" />
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="{Binding DetailTitle}" Style="{StaticResource Text.Heading3}" />
+                <TextBlock Text="{Binding DetailText}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <TextBlock Text="Groups and Their Experience" Style="{StaticResource Text.Heading2}" Margin="0,8,0,6" />
+        <ItemsControl ItemsSource="{Binding Groups}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,10" controls:Motion.FadeIn="True">
+                        <StackPanel>
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                    <StackPanel Margin="16,0,0,0">
+                                        <TextBlock Text="Security" Style="{StaticResource Text.Caption}" />
+                                        <TextBlock Text="{Binding SecurityText}" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                    <StackPanel Margin="16,0,0,0">
+                                        <TextBlock Text="Friction" Style="{StaticResource Text.Caption}" />
+                                        <TextBlock Text="{Binding FrictionText}" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Heading2}" />
+                                    <TextBlock Text="{Binding Subtitle}" Style="{StaticResource Text.Secondary}" />
+                                </StackPanel>
+                            </DockPanel>
+                            <TextBlock Text="{Binding ConflictText}" Margin="0,4,0,4">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Foreground" Value="{DynamicResource AppBrush.Success}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasConflicts}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource AppBrush.Error}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <controls:ColumnChart Title="Friction by solution (click a column to see each choice)" ItemsSource="{Binding SolutionFriction}" ChartHeight="110"
+                                                  Command="{Binding DataContext.ShowDetailCommand, ElementName=Page}" />
+                            <Expander Header="Conflicts and required changes" Style="{StaticResource Section.Expander}" IsExpanded="{Binding HasConflicts, Mode=OneWay}"
+                                      Visibility="{Binding HasConflicts, Converter={StaticResource BoolToVisibility}}">
+                                <ItemsControl ItemsSource="{Binding Conflicts}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderThickness="3,0,0,0" BorderBrush="{DynamicResource AppBrush.Error}" Padding="8,4" Margin="0,0,0,6">
+                                                <StackPanel>
+                                                    <TextBlock FontWeight="SemiBold" TextWrapping="Wrap">
+                                                        <Run Text="{Binding Framework, Mode=OneWay}" /><Run Text=" — " /><Run Text="{Binding Topic, Mode=OneWay}" /><Run Text=": " /><Run Text="{Binding Choice, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding Reason}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding Fix}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Expander>
+                            <Expander Header="The experience in detail" Style="{StaticResource Section.Expander}">
+                                <ItemsControl ItemsSource="{Binding Lines}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="200" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Topic}" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding Solution}" Style="{StaticResource Text.Caption}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock TextWrapping="Wrap"><Run Text="{Binding Choice, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" — " /><Run Text="{Binding UserExperience, Mode=OneWay}" /></TextBlock>
+                                                    <TextBlock Text="{Binding Source, StringFormat=Source: {0}}" Style="{StaticResource Text.Caption}" />
+                                                    <TextBlock Text="{Binding Change}" TextWrapping="Wrap" Foreground="{DynamicResource AppBrush.Warning}"
+                                                               Visibility="{Binding IsChanged, Converter={StaticResource BoolToVisibility}}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Expander>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

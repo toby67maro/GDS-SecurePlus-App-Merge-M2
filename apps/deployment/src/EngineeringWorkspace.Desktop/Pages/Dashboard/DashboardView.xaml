@@ -1,0 +1,80 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Dashboard.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:assessments="clr-namespace:EngineeringWorkspace.Desktop.Pages.Assessments"
+             xmlns:controls="clr-namespace:EngineeringWorkspace.Desktop.Controls">
+    <UserControl.Resources>
+        <Style x:Key="Tile.Value" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="{DynamicResource AppFont.Size.Heading1}" />
+            <Setter Property="FontWeight" Value="{DynamicResource AppFont.Weight.Heading}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppBrush.Accent}" />
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <UniformGrid Columns="4">
+            <Border Style="{StaticResource Card}" Margin="0,0,8,8" controls:Motion.HoverLift="True">
+                <StackPanel>
+                    <TextBlock Text="Customers" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding CustomerCount}" Style="{StaticResource Tile.Value}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,8,8" controls:Motion.HoverLift="True">
+                <StackPanel>
+                    <TextBlock Text="Workspaces" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding WorkspaceCount}" Style="{StaticResource Tile.Value}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,8,8" controls:Motion.HoverLift="True">
+                <StackPanel>
+                    <TextBlock Text="Assessments" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding AssessmentCount}" Style="{StaticResource Tile.Value}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,0,8" controls:Motion.HoverLift="True">
+                <StackPanel>
+                    <TextBlock Text="Average Score" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{Binding AverageScore}" Style="{StaticResource Tile.Value}" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <WrapPanel Visibility="{Binding HasCharts, Converter={StaticResource BoolToVisibility}}">
+            <controls:GaugeChart Title="Compliance" Value="{Binding Compliance}" Subtitle="{Binding ComplianceCaption}" Width="240" />
+            <controls:DonutChart Title="Controls by Status (click to break down)" ItemsSource="{Binding StatusSlices}" Command="{Binding ShowChartDetailCommand}" />
+            <controls:DonutChart Title="Gaps by Severity (click for solution areas)" ItemsSource="{Binding SeveritySlices}" InnerRadiusRatio="0" Command="{Binding ShowChartDetailCommand}" />
+            <controls:HorizontalBarChart Title="Compliance by Solution Area (click for gaps)" ItemsSource="{Binding AreaSlices}" Maximum="100" ValueFormat="0.#" LabelWidth="190"
+                                         MinWidth="560" Command="{Binding ShowChartDetailCommand}" />
+            <controls:LineChart Title="Assessment Score Trend (%)" ItemsSource="{Binding ScoreTrend}" Maximum="100" ValueFormat="0.#" MinWidth="460" Command="{Binding ShowChartDetailCommand}" />
+            <controls:ColumnChart Title="Fleet Compliance (%)" ItemsSource="{Binding FleetSlices}" ValueFormat="0.#" MinWidth="460" Command="{Binding ShowChartDetailCommand}" />
+        </WrapPanel>
+        <TextBlock Text="{Binding ChartDetail}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,0,0,8"
+                   Visibility="{Binding HasCharts, Converter={StaticResource BoolToVisibility}}" />
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Current Context" Style="{StaticResource Text.Heading3}" Margin="0,0,0,8" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Customer" Style="{StaticResource Text.Secondary}" /><TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CustomerName}" />
+                    <TextBlock Grid.Row="1" Text="Tenant" Style="{StaticResource Text.Secondary}" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TenantName}" />
+                    <TextBlock Grid.Row="2" Text="Workspace" Style="{StaticResource Text.Secondary}" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding WorkspaceName}" />
+                    <TextBlock Grid.Row="3" Text="Database" Style="{StaticResource Text.Secondary}" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DatabaseSummary}" TextWrapping="Wrap" />
+                </Grid>
+                <WrapPanel Margin="0,12,0,0">
+                    <Button Content="Refresh" Command="{Binding RefreshCommand}" Style="{StaticResource Button.Secondary}" />
+                    <Button Content="Load Sample Data" Command="{Binding LoadSampleDataCommand}" Style="{StaticResource Button.Secondary}"
+                            Visibility="{Binding CanLoadSampleData, Converter={StaticResource BoolToVisibility}}"
+                            ToolTip="Adds the 'Contoso (Sample)' customer, 'Sample Workspace' and a completed sample assessment." />
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusMessage}" Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+        <assessments:AssessmentListView />
+    </StackPanel>
+</UserControl>

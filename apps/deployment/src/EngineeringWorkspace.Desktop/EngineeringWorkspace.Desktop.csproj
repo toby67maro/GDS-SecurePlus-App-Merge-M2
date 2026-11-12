@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AssemblyTitle>Secure Plus Agent</AssemblyTitle>
+    <Product>GDS Secure Plus agent</Product>
+    <Company>Global Data Systems</Company>
+    <!-- GDS icon: title bar, taskbar, Alt+Tab, shortcuts and Programs and Features. -->
+    <ApplicationIcon>Assets\gds.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\gds.ico" />
+    <Resource Include="Assets\gds-logo.png" />
+    <Resource Include="Assets\gds-logo-white.png" />
+    <Resource Include="Assets\gds-icon-256.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EngineeringWorkspace.Application\EngineeringWorkspace.Application.csproj" />
+    <ProjectReference Include="..\EngineeringWorkspace.Domain\EngineeringWorkspace.Domain.csproj" />
+    <ProjectReference Include="..\EngineeringWorkspace.Contracts\EngineeringWorkspace.Contracts.csproj" />
+    <ProjectReference Include="..\EngineeringWorkspace.Configuration\EngineeringWorkspace.Configuration.csproj" />
+    <!-- Infrastructure is referenced only by the composition root (Composition/ and Bootstrap/). -->
+    <ProjectReference Include="..\EngineeringWorkspace.Infrastructure\EngineeringWorkspace.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Package configuration templates; seeded into the per-user configuration directory on first run. -->
+    <None Include="..\..\config\**\*" LinkBase="config\" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Also embedded, so a single-file executable can seed the per-user configuration directory on first run. -->
+    <EmbeddedResource Include="..\..\config\**\*" LogicalName="EngineeringWorkspace.ConfigTemplates/%(RecursiveDir)%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Sinks.File" />
+  </ItemGroup>
+
+</Project>

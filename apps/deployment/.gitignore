@@ -1,0 +1,17 @@
+bin/
+obj/
+.vs/
+*.user
+data/Logs/
+data/Audit/
+data/Workspaces/
+data/Customers/
+data/Credentials/
+data/State/
+data/Imports/
+data/Exports/
+data/GoldenTenants/
+artifacts/
+*.db
+*.tmp
+__pycache__/

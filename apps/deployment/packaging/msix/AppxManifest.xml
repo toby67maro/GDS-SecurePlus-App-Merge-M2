@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap">
+  <Identity
+    Name="GlobalDataSystems.SecurePlus.ModernWork"
+    Publisher="CN=Global Data Systems"
+    Version="__VERSION__" />
+  <Properties>
+    <DisplayName>GDS Secure Plus agent</DisplayName>
+    <PublisherDisplayName>Global Data Systems</PublisherDisplayName>
+    <Description>Global Data Systems Secure Plus Agent engineering workspace.</Description>
+    <Logo>Assets/StoreLogo.png</Logo>
+  </Properties>
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+  <Applications>
+    <Application
+      Id="SecurePlusModernWork"
+      Executable="EngineeringWorkspace.Desktop.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        AppListEntry="default"
+        DisplayName="GDS Secure Plus agent"
+        Description="Global Data Systems Secure Plus Agent engineering workspace."
+        BackgroundColor="#005A9C"
+        Square44x44Logo="Assets/Square44x44Logo.png"
+        Square150x150Logo="Assets/Square150x150Logo.png">
+        <uap:DefaultTile
+          Wide310x150Logo="Assets/Wide310x150Logo.png"
+          Square150x150Logo="Assets/Square150x150Logo.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>

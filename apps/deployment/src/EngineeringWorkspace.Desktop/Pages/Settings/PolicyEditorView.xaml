@@ -1,0 +1,151 @@
+<UserControl x:Class="EngineeringWorkspace.Desktop.Pages.Settings.PolicyEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Policies and Policy Sets" Style="{StaticResource Text.Heading3}" Margin="0" />
+                <TextBlock Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,2,0,6"
+                           Text="Leads create, edit, hide and delete policies of any kind (Conditional Access, Intune, endpoint security, Microsoft baseline, checks, standards) and policy sets. Edits are stored apart from the GDS catalogue, so reloading or upgrading the catalogue never deletes or overwrites them; a GDS policy you edited shows 'update available' when GDS changes it. Every change is kept in an append-only history." />
+                <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" FontWeight="SemiBold" />
+            </StackPanel>
+        </Border>
+        <TabControl Margin="0,8,0,0" IsEnabled="{Binding CanEdit}">
+            <TabItem Header="Policies">
+                <StackPanel Margin="0,8,0,0">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="New Policy" Command="{Binding NewPolicyCommand}" Style="{StaticResource Button.Secondary}" />
+                        <TextBox Text="{Binding PolicySearch, UpdateSourceTrigger=PropertyChanged}" Width="320" HorizontalAlignment="Left" AutomationProperties.Name="Search policies"
+                                 ToolTip="Search by ID, name or kind" />
+                    </DockPanel>
+                    <DataGrid ItemsSource="{Binding PoliciesView}" SelectedItem="{Binding SelectedPolicy}" IsReadOnly="True" AutoGenerateColumns="False" MaxHeight="300" Margin="0,6,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="140" />
+                            <DataGridTextColumn Header="Kind" Binding="{Binding Kind}" Width="160" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="3*" />
+                            <DataGridTextColumn Header="Origin" Binding="{Binding Origin}" Width="1.4*" />
+                            <DataGridTextColumn Header="Policy Sets" Binding="{Binding Sets}" Width="1.6*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border Style="{StaticResource Card}" Margin="0,8,0,0" Visibility="{Binding HasPolicy, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}">
+                                <Run Text="{Binding PolicyId, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding PolicyOrigin, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Text="{Binding PolicyMessage}" TextWrapping="Wrap" Margin="0,2,0,6" />
+                            <WrapPanel>
+                            <StackPanel Width="200" Margin="0,0,12,6"><TextBlock Text="Kind" Style="{StaticResource Text.Label}" />
+                                <ComboBox ItemsSource="{Binding Kinds}" SelectedItem="{Binding Kind}" AutomationProperties.Name="Kind" /></StackPanel>
+                            <StackPanel Width="420" Margin="0,0,12,6"><TextBlock Text="Name" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Name" /></StackPanel>
+                            <StackPanel Width="220" Margin="0,0,12,6"><TextBlock Text="Category" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Category" /></StackPanel>
+                            <StackPanel Width="160" Margin="0,0,12,6"><TextBlock Text="Platform" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Platform, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Platform" /></StackPanel>
+                            <StackPanel Width="420" Margin="0,0,12,6"><TextBlock Text="Setting" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Setting, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Setting" /></StackPanel>
+                            <StackPanel Width="260" Margin="0,0,12,6"><TextBlock Text="Recommended Value" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Recommended Value" /></StackPanel>
+                            <StackPanel Width="220" Margin="0,0,12,6"><TextBlock Text="Default Value (Microsoft)" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding DefaultValue, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Default Value (Microsoft)" /></StackPanel>
+                            <StackPanel Width="140" Margin="0,0,12,6"><TextBlock Text="Severity" Style="{StaticResource Text.Label}" />
+                                <ComboBox ItemsSource="{Binding Severities}" SelectedItem="{Binding Severity}" AutomationProperties.Name="Severity" /></StackPanel>
+                            <StackPanel Width="160" Margin="0,0,12,6"><TextBlock Text="User Impact" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding UserImpact, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="User Impact" /></StackPanel>
+                            <StackPanel Width="200" Margin="0,0,12,6"><TextBlock Text="Product" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Product, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Product" /></StackPanel>
+                            <StackPanel Width="260" Margin="0,0,12,6"><TextBlock Text="Feature Area" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding FeatureArea, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Feature Area" /></StackPanel>
+                            <StackPanel Width="150" Margin="0,0,12,6"><TextBlock Text="Assess Method" Style="{StaticResource Text.Label}" />
+                                <ComboBox ItemsSource="{Binding AssessMethods}" SelectedItem="{Binding AssessMethod}" AutomationProperties.Name="Assess Method" /></StackPanel>
+                            <StackPanel Width="150" Margin="0,0,12,6"><TextBlock Text="Deploy Method" Style="{StaticResource Text.Label}" />
+                                <ComboBox ItemsSource="{Binding DeployMethods}" SelectedItem="{Binding DeployMethod}" AutomationProperties.Name="Deploy Method" /></StackPanel>
+                            <StackPanel Width="560" Margin="0,0,12,6"><TextBlock Text="Frameworks (separate with ;)" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Frameworks, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Frameworks (separate with ;)" /></StackPanel>
+                            <StackPanel Width="200" Margin="0,0,12,6"><TextBlock Text="Source" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding SourceName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Source" /></StackPanel>
+                            <StackPanel Width="140" Margin="0,0,12,6"><TextBlock Text="Source Version" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding SourceVersion, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Source Version" /></StackPanel>
+                            <StackPanel Width="360" Margin="0,0,12,6"><TextBlock Text="Source URL" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding SourceUrl, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Source URL" /></StackPanel>
+                            <StackPanel Width="880" Margin="0,0,12,6"><TextBlock Text="Description" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding PolicyDescription, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Description" AcceptsReturn="True" TextWrapping="Wrap" Height="60" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" /></StackPanel>
+                            <StackPanel Width="880" Margin="0,0,12,6"><TextBlock Text="Policy Body (Microsoft Graph JSON)" Style="{StaticResource Text.Label}" />
+                                <TextBox Text="{Binding Body, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Policy Body (Microsoft Graph JSON)" AcceptsReturn="True" TextWrapping="Wrap" Height="160" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" /></StackPanel>
+                            </WrapPanel>
+                            <WrapPanel Margin="0,6,0,0">
+                                <Button Content="Save Policy" Command="{Binding SavePolicyCommand}" />
+                                <Button Content="Hide (GDS) / Delete (Lead)" Command="{Binding RemovePolicyCommand}" Style="{StaticResource Button.Secondary}" />
+                                <Button Content="Revert to GDS" Command="{Binding RevertPolicyCommand}" Style="{StaticResource Button.Secondary}"
+                                        ToolTip="Removes your edit or hide; the GDS version shows again." />
+                            </WrapPanel>
+                            <Expander Header="History" Style="{StaticResource Section.Expander}" Margin="0,8,0,0">
+                                <DataGrid ItemsSource="{Binding History}" IsReadOnly="True" AutoGenerateColumns="False" MaxHeight="200">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="When (UTC)" Binding="{Binding ChangedAtUtc, StringFormat=yyyy-MM-dd HH:mm}" Width="140" />
+                                        <DataGridTextColumn Header="Who" Binding="{Binding ChangedBy}" Width="200" />
+                                        <DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="100" />
+                                        <DataGridTextColumn Header="After" Binding="{Binding AfterJson}" Width="*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Expander>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Policy Sets">
+                <StackPanel Margin="0,8,0,0">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="New Policy Set" Command="{Binding NewSetCommand}" Style="{StaticResource Button.Secondary}" />
+                        <TextBlock Text="Policy sets are the building blocks of baselines (Settings &gt; Baseline Configurations)." Style="{StaticResource Text.Caption}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <DataGrid ItemsSource="{Binding Sets}" SelectedItem="{Binding SelectedSet}" IsReadOnly="True" AutoGenerateColumns="False" MaxHeight="240" Margin="0,6,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="220" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                            <DataGridTextColumn Header="Policies" Binding="{Binding Members}" Width="Auto" />
+                            <DataGridTextColumn Header="Origin" Binding="{Binding Origin}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border Style="{StaticResource Card}" Margin="0,8,0,0" Visibility="{Binding HasSet, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Label}" FontSize="{DynamicResource AppFont.Size.Heading3}">
+                                <Run Text="{Binding SetId, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SetOrigin, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Text="{Binding SetMessage}" TextWrapping="Wrap" Margin="0,2,0,6" />
+                            <WrapPanel>
+                                <StackPanel Width="360" Margin="0,0,12,6"><TextBlock Text="Name" Style="{StaticResource Text.Label}" />
+                                    <TextBox Text="{Binding SetName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Policy set name" /></StackPanel>
+                                <StackPanel Width="140" Margin="0,0,12,6"><TextBlock Text="Deployment Order" Style="{StaticResource Text.Label}" />
+                                    <TextBox Text="{Binding SetOrder, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Deployment order" /></StackPanel>
+                                <StackPanel Width="560" Margin="0,0,12,6"><TextBlock Text="Description" Style="{StaticResource Text.Label}" />
+                                    <TextBox Text="{Binding SetDescription, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Policy set description" /></StackPanel>
+                            </WrapPanel>
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Policies in this set" Style="{StaticResource Text.Label}" />
+                                    <ListBox ItemsSource="{Binding Members}" SelectedItem="{Binding SelectedMember}" DisplayMemberPath="Display" Height="260" AutomationProperties.Name="Policies in the set" />
+                                    <Button Content="Remove Selected" Command="{Binding RemoveMemberCommand}" Style="{StaticResource Button.Secondary}" HorizontalAlignment="Left" Margin="0,4,0,0" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Add a policy (any kind)" Style="{StaticResource Text.Label}" />
+                                    <TextBox Text="{Binding MemberSearch, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search policies to add" ToolTip="Search by ID, name or kind" />
+                                    <ListBox ItemsSource="{Binding CandidatesView}" SelectedItem="{Binding SelectedCandidate}" Height="232" Margin="0,4,0,0" AutomationProperties.Name="Policies to add">
+                                        <ListBox.ItemTemplate><DataTemplate><TextBlock><Run Text="{Binding Id, Mode=OneWay}" /><Run Text=" – " /><Run Text="{Binding Name, Mode=OneWay}" /><Run Text=" (" /><Run Text="{Binding Kind, Mode=OneWay}" /><Run Text=")" /></TextBlock></DataTemplate></ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <Button Content="Add to Set" Command="{Binding AddMemberCommand}" Style="{StaticResource Button.Secondary}" HorizontalAlignment="Left" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Grid>
+                            <WrapPanel Margin="0,8,0,0">
+                                <Button Content="Save Policy Set" Command="{Binding SaveSetCommand}" />
+                                <Button Content="Hide (GDS) / Delete (Lead)" Command="{Binding RemoveSetCommand}" Style="{StaticResource Button.Secondary}" />
+                                <Button Content="Revert to GDS" Command="{Binding RevertSetCommand}" Style="{StaticResource Button.Secondary}" />
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </StackPanel>
+</UserControl>
